@@ -98,6 +98,12 @@
             background: linear-gradient(90deg, #1E3A8A, #D4AF37, #FBBF24);
         }
 
+        /* สไตล์สำหรับปรับแต่งภาพพื้นหลังส่วนหัว (Header Background) */
+        .custom-header-bg {
+            background-size: cover;
+            background-position: center;
+        }
+
         /* Animation จุดกระพริบสถานะ Real-time */
         @keyframes pulse-ring {
             0% { transform: scale(0.8); opacity: 0.8; }
@@ -124,87 +130,85 @@
 </head>
 <body class="min-h-screen flex flex-col">
 
-    <!-- ==================== HEADER BAR (ธีมน้ำเงินเข้มตัดขอบทอง) ==================== -->
-    <header class="bg-gradient-to-r from-navy-950 via-navy-900 to-royal-800 text-white shadow-xl gold-border-gradient sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                
-                <!-- โลโก้ต้นฉบับ KIM PAI และหัวข้อหลัก -->
-                <div class="flex items-center gap-4">
-                    <!-- กรอบแสดงโลโก้ต้นฉบับ 100% ไม่ดัดแปลง -->
-                    <div class="relative group bg-white/95 rounded-xl p-1 shadow-md border-2 border-gold-500 flex-shrink-0 overflow-hidden cursor-pointer" style="width: 112px; height: 74px;" title="คลิกเพื่อเปลี่ยนรูปโลโก้" onclick="document.getElementById('logoUploadInput').click()">
-                        <img id="companyLogoImg" src="KIMpai.jpg" alt="KIM PAI PRINTING & PACKAGING" 
-                             class="w-full h-full object-contain"
-                             onerror="handleLogoError(this)">
-                        <div class="absolute inset-0 bg-navy-900/75 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-[10px] text-gold-300 text-center px-1 pointer-events-none">
-                            <i class="fa-solid fa-camera mb-0.5 text-xs"></i>
-                            <span>เปลี่ยนรูปโลโก้</span>
+    <!-- ==================== HEADER BAR (ธีมน้ำเงินเข้มตัดขอบทอง สามารถเปลี่ยนภาพพื้นหลังได้) ==================== -->
+    <header id="mainHeaderBar" class="bg-gradient-to-r from-navy-950 via-navy-900 to-royal-800 text-white shadow-xl gold-border-gradient sticky top-0 z-40 custom-header-bg transition-all">
+        <div class="bg-navy-950/75 backdrop-blur-[2px] w-full">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                    
+                    <!-- โลโก้ต้นฉบับ KIM PAI และหัวข้อหลัก -->
+                    <div class="flex items-center gap-4">
+                        <!-- กรอบแสดงโลโก้ต้นฉบับ 100% ไม่ดัดแปลง -->
+                        <div class="relative group bg-white/95 rounded-xl p-1 shadow-md border-2 border-gold-500 flex-shrink-0 overflow-hidden cursor-pointer" style="width: 112px; height: 74px;" title="คลิกเพื่อเปลี่ยนรูปโลโก้" onclick="document.getElementById('logoUploadInput').click()">
+                            <img id="companyLogoImg" src="KIMpai.jpg" alt="KIM PAI PRINTING & PACKAGING" 
+                                 class="w-full h-full object-contain"
+                                 onerror="handleLogoError(this)">
+                            <div class="absolute inset-0 bg-navy-900/75 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-[10px] text-gold-300 text-center px-1 pointer-events-none">
+                                <i class="fa-solid fa-camera mb-0.5 text-xs"></i>
+                                <span>เปลี่ยนรูปโลโก้</span>
+                            </div>
+                            <input type="file" id="logoUploadInput" accept="image/*" class="hidden" onchange="uploadCustomLogo(event)">
                         </div>
-                        <input type="file" id="logoUploadInput" accept="image/*" class="hidden" onchange="uploadCustomLogo(event)">
-                    </div>
 
-                    <div>
-                        <div class="flex items-center gap-2 flex-wrap">
-                            <span class="px-2.5 py-0.5 text-xs font-bold tracking-wider uppercase rounded-full bg-gold-500/20 text-gold-300 border border-gold-500/50">
-                                KIM PAI PRINTING & PACKAGING
-                            </span>
-                            <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-blue-500/30 text-blue-200 border border-blue-400/40">
-                                Real-Time QC Monitor
-                            </span>
+                        <div>
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="px-2.5 py-0.5 text-xs font-bold tracking-wider uppercase rounded-full bg-gold-500/20 text-gold-300 border border-gold-500/50">
+                                    KIM PAI PRINTING & PACKAGING
+                                </span>
+                                <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-blue-500/30 text-blue-200 border border-blue-400/40">
+                                    Real-Time QC Monitor
+                                </span>
+                            </div>
+                            <h1 class="text-base sm:text-xl xl:text-2xl font-bold text-white tracking-wide mt-1 drop-shadow lg:whitespace-nowrap">
+                                ติดตามปัญหาระหว่างการผลิต <span class="text-gold-400 whitespace-nowrap">เหรียญทองการพิมพ์ (WG6)</span>
+                            </h1>
                         </div>
-                        <h1 class="text-base sm:text-xl xl:text-2xl font-bold text-white tracking-wide mt-1 drop-shadow lg:whitespace-nowrap">
-                            ติดตามปัญหาระหว่างการผลิต <span class="text-gold-400 whitespace-nowrap">เหรียญทองการพิมพ์ (WG6)</span>
-                        </h1>
+                    </div>
+
+                    <!-- ส่วนแสดงสถานะ Real-time, เปลี่ยนภาพพื้นหลังหัวข้อ & ปุ่มตั้งค่า -->
+                    <div class="flex flex-wrap items-center justify-between md:justify-end gap-3 bg-navy-950/60 px-3.5 py-2 rounded-xl border border-gold-500/30">
+                        <div class="text-right">
+                            <div id="realtimeClock" class="text-sm font-bold text-gold-300 font-mono">00:00:00</div>
+                            <div id="realtimeDate" class="text-[11px] text-slate-300">วันจันทร์ที่ 16 พ.ย. 2569</div>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <!-- ซ่อนปุ่มเปลี่ยนภาพพื้นหลังส่วนหัวตามคำขอ -->
+                            <button onclick="document.getElementById('headerBgUploadInput').click()" title="เปลี่ยนภาพพื้นหลังส่วนหัว"
+                                    class="hidden p-2 rounded-lg bg-navy-800 hover:bg-royal-700 text-gold-300 border border-gold-500/50 transition shadow active:scale-95">
+                                <i class="fa-solid fa-image text-base"></i>
+                            </button>
+                            <input type="file" id="headerBgUploadInput" accept="image/*" class="hidden" onchange="uploadHeaderBackground(event)">
+
+                            <button onclick="manualSyncNow()" id="btnManualSync" title="ซิงค์ข้อมูลทันที"
+                                    class="p-2 rounded-lg bg-gold-500 hover:bg-gold-400 text-navy-950 font-bold transition shadow active:scale-95">
+                                <i class="fa-solid fa-rotate" id="syncIcon"></i>
+                            </button>
+
+                            <button onclick="switchTab('settings')" id="tab-settings" title="ตั้งค่าเชื่อมต่อ Google Sheet & Apps Script"
+                                    class="relative p-2 rounded-lg bg-navy-800 hover:bg-royal-700 text-gold-300 border border-gold-500/50 transition shadow active:scale-95">
+                                <i class="fa-solid fa-gear text-base"></i>
+                                <span id="sheetConnectedBadge" class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-amber-400 border border-navy-950" title="สถานะการเชื่อมต่อ Google Sheet"></span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                <!-- ส่วนแสดงสถานะ Real-time และนาฬิกา -->
-                <div class="flex flex-wrap items-center justify-between md:justify-end gap-3 bg-navy-950/60 px-3.5 py-2 rounded-xl border border-gold-500/30">
-                    <div class="flex items-center gap-2">
-                        <button onclick="switchTab('settings')" id="tab-settings" title="ตั้งค่าเชื่อมต่อ Google Sheet & Apps Script"
-                                class="relative p-2 rounded-lg bg-navy-800 hover:bg-royal-700 text-gold-300 border border-gold-500/50 transition shadow active:scale-95">
-                            <i class="fa-solid fa-gear text-base"></i>
-                            <span id="sheetConnectedBadge" class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-amber-400 border border-navy-950" title="สถานะการเชื่อมต่อ Google Sheet"></span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- เมนูนำทางหลัก (Navigation Tabs) -->
-
-                    <div class="text-right">
-                        <div id="realtimeClock" class="text-sm font-bold text-gold-300 font-mono">00:00:00</div>
-                        <div id="realtimeDate" class="text-[11px] text-slate-300">วันจันทร์ที่ 16 พ.ย. 2569</div>
-                    </div>
-
-                    <button onclick="manualSyncNow()" id="btnManualSync" title="ซิงค์ข้อมูลทันที"
-                            class="p-2 rounded-lg bg-gold-500 hover:bg-gold-400 text-navy-950 font-bold transition shadow active:scale-95">
-                        <i class="fa-solid fa-rotate" id="syncIcon"></i>
+                <!-- เมนูนำทางหลัก (Navigation Tabs) -->
+                <nav class="flex space-x-2 mt-4 pt-2 border-t border-white/10 overflow-x-auto pb-1">
+                    <button onclick="switchTab('dashboard')" id="tab-dashboard"
+                            class="nav-tab active flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all whitespace-nowrap bg-gradient-to-r from-gold-500 to-gold-400 text-navy-950 shadow-md">
+                        <i class="fa-solid fa-chart-pie"></i>
+                        <span>สรุปผลการรายงาน</span>
                     </button>
-
-                    <!-- ปุ่มรูปฟันเฟืองตั้งค่า Google Sheet มุมบนด้านขวา -->
-                    <button onclick="switchTab('settings')" id="tab-settings" title="ตั้งค่าเชื่อมต่อ Google Sheet & Apps Script"
-                            class="relative p-2 rounded-lg bg-navy-800 hover:bg-royal-700 text-gold-300 border border-gold-500/50 transition shadow active:scale-95">
-                        <i class="fa-solid fa-gear text-base"></i>
-                        <span id="sheetConnectedBadge" class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-amber-400 border border-navy-950" title="สถานะการเชื่อมต่อ Google Sheet"></span>
+                    <button onclick="switchTab('record')" id="tab-record"
+                            class="nav-tab flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all whitespace-nowrap text-blue-100 hover:bg-white/10">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                        <span>บันทึกปัญหา / แก้ไขข้อมูล</span>
+                        <span id="badgeTotalRecords" class="ml-1 px-2 py-0.5 text-xs rounded-full bg-navy-950 text-gold-300 border border-gold-500/40">0</span>
                     </button>
-                </div>
+                </nav>
             </div>
-
-            <!-- เมนูนำทางหลัก (Navigation Tabs เหลือ 2 แท็บหลักที่ชัดเจน) -->
-            <nav class="flex space-x-2 mt-4 pt-2 border-t border-white/10 overflow-x-auto pb-1">
-                <button onclick="switchTab('dashboard')" id="tab-dashboard"
-                        class="nav-tab active flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all whitespace-nowrap bg-gradient-to-r from-gold-500 to-gold-400 text-navy-950 shadow-md">
-                    <i class="fa-solid fa-chart-pie"></i>
-                    <span>สรุปผลการรายงาน</span>
-                </button>
-                <button onclick="switchTab('record')" id="tab-record"
-                        class="nav-tab flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all whitespace-nowrap text-blue-100 hover:bg-white/10">
-                    <i class="fa-solid fa-pen-to-square"></i>
-                    <span>บันทึกปัญหา / แก้ไขข้อมูล</span>
-                    <span id="badgeTotalRecords" class="ml-1 px-2 py-0.5 text-xs rounded-full bg-navy-950 text-gold-300 border border-gold-500/40">0</span>
-                </button>
-            </nav>
         </div>
     </header>
 
@@ -801,20 +805,20 @@
                                 <i class="fa-solid fa-image"></i>
                             </div>
                             <div>
-                                <h2 class="text-lg font-bold text-navy-900">ตั้งค่ารูปพื้นหลังเว็บไซต์</h2>
-                                <p class="text-xs text-slate-500">อัปโหลดรูปภาพเพื่อเปลี่ยนพื้นหลังแดชบอร์ดตามต้องการ</p>
+                                <h2 class="text-lg font-bold text-navy-900">ตั้งค่ารูปพื้นหลังหัวข้อ (Header Background)</h2>
+                                <p class="text-xs text-slate-500">อัปโหลดรูปภาพเพื่อเปลี่ยนภาพพื้นหลังตรงหัวข้อติดตามปัญหาระหว่างการผลิต</p>
                             </div>
                         </div>
 
                         <div class="space-y-3">
                             <label class="block w-full border-2 border-dashed border-slate-300 hover:border-gold-500 rounded-xl p-4 text-center cursor-pointer bg-slate-50 transition">
                                 <i class="fa-solid fa-cloud-arrow-up text-2xl text-royal-700 mb-1"></i>
-                                <span class="text-xs font-bold text-navy-900 block">คลิกเพื่ออัปโหลดภาพพื้นหลังใหม่</span>
+                                <span class="text-xs font-bold text-navy-900 block">คลิกเพื่ออัปโหลดภาพพื้นหลังส่วนหัวใหม่</span>
                                 <span class="text-[11px] text-slate-500">(รองรับไฟล์ JPG, PNG)</span>
-                                <input type="file" accept="image/*" class="hidden" onchange="uploadCustomBackground(event)">
+                                <input type="file" accept="image/*" class="hidden" onchange="uploadHeaderBackground(event)">
                             </label>
-                            <button onclick="resetCustomBackground()" class="w-full py-2 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs font-semibold transition">
-                                <i class="fa-solid fa-rotate-left mr-1"></i>คืนค่าพื้นหลังเริ่มต้น
+                            <button onclick="resetHeaderBackground()" class="w-full py-2 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs font-semibold transition">
+                                <i class="fa-solid fa-rotate-left mr-1"></i>คืนค่าพื้นหลังหัวข้อเริ่มต้น
                             </button>
                         </div>
                     </div>
@@ -1098,7 +1102,8 @@ function formatDateValue(val) {
             "ปั้มนูนไม่ตรง", "ปั๊มเคไม่ตรง", "ขุยกระดาษ", "ปั๊มกล่องเกย", "ปั๊มกล่องเอียง",
             "ปั๊มนูนไม่ถูกตำแหน่ง", "ปั๊มเคไม่ถูกตำแหน่ง", "กาวล่อน", "กาวติด", "กาวเลอะ",
             "กาวเอียง", "กาวไม่ตรงตำแหน่ง", "ติดกล่องห่าง", "ติดกล่องเกย", "ติดกล่องเอียง",
-            "ลังบรรจุไม่ได้มาตรฐาน", "คัด100%ไม่มีประสิทธิภาพ", "งานโค่น", "ไม่ปฏิบัติตามระบบ"
+            "ลังบรรจุไม่ได้มาตรฐาน", "คัด100%ไม่มีประสิทธิภาพ", "งานโค่น", "ไม่ปฏิบัติตามระบบ",
+            "กล่องเป็นรอย", "กล่องขาด"
         ];
 
         // ชุดสีสำหรับแยกสีแต่ละแท่งกราฟ
@@ -1123,6 +1128,7 @@ function formatDateValue(val) {
         const STORAGE_KEY_SETTINGS = 'wg6_sheet_settings_v1';
         const STORAGE_KEY_LOGO = 'wg6_custom_logo_v1';
         const STORAGE_KEY_BG = 'wg6_custom_bg_v1';
+        const STORAGE_KEY_HEADER_BG = 'wg6_custom_header_bg_v1';
 
         let allRecords = [];
         let sheetSettings = {
@@ -1144,6 +1150,7 @@ function formatDateValue(val) {
             loadSettings();
             loadCustomLogo();
             loadCustomBackground();
+            loadHeaderBackground();
             initDropdowns();
             loadRecordsFromStorage();
             initClock();
@@ -2133,6 +2140,41 @@ function formatDateValue(val) {
             if (savedBg) {
                 document.body.style.backgroundImage = `linear-gradient(rgba(240, 245, 250, 0.92), rgba(240, 245, 250, 0.92)), url('${savedBg}')`;
             }
+        }
+
+        function loadHeaderBackground() {
+            const savedHeaderBg = localStorage.getItem(STORAGE_KEY_HEADER_BG);
+            if (savedHeaderBg) {
+                const headerEl = document.getElementById('mainHeaderBar');
+                if (headerEl) {
+                    headerEl.style.backgroundImage = `url('${savedHeaderBg}')`;
+                }
+            }
+        }
+
+        function uploadHeaderBackground(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64Str = e.target.result;
+                localStorage.setItem(STORAGE_KEY_HEADER_BG, base64Str);
+                const headerEl = document.getElementById('mainHeaderBar');
+                if (headerEl) {
+                    headerEl.style.backgroundImage = `url('${base64Str}')`;
+                }
+                showToast('เปลี่ยนภาพพื้นหลังส่วนหัวเรียบร้อยแล้ว', 'success');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function resetHeaderBackground() {
+            localStorage.removeItem(STORAGE_KEY_HEADER_BG);
+            const headerEl = document.getElementById('mainHeaderBar');
+            if (headerEl) {
+                headerEl.style.backgroundImage = 'none';
+            }
+            showToast('รีเซ็ตภาพพื้นหลังส่วนหัวเป็นค่าเริ่มต้นแล้ว', 'info');
         }
 
         function uploadCustomBackground(event) {
