@@ -832,36 +832,49 @@
                     <div class="relative flex-grow bg-slate-900 text-emerald-300 p-4 overflow-x-auto font-mono text-xs leading-relaxed">
 <pre id="appsScriptCodeBlock">// ============================================================================
 // Google Apps Script สำหรับระบบติดตามปัญหาระหว่างการผลิต เหรียญทองการพิมพ์ (WG6)
-// รองรับ: อ่านข้อมูล (GET), เพิ่มข้อมูลใหม่ (CREATE), แก้ไข (UPDATE), ลบ (DELETE)
+// อัปเดตโครงสร้างคอลัมน์ให้ตรงกัน 100%:
+// A=ID, B=วันที่แจ้ง, C=เลขที่ใบสั่งผลิต, D=แผนก, E=เครื่องจักร, F=หัวหน้าเครื่อง, 
+// G=ชื่อ QA, H=ปัญหาที่พบ, I=จำนวน, J=หน่วย, K=มาตรการแก้ไข, L=สาเหตุยกงานลง, M=อัปเดตล่าสุด
 // ============================================================================
 
 function doGet(e) {
-  var sheetName = (e && e.parameter && e.parameter.sheet) ? e.parameter.sheet : 'WG6_Defects';
-  var sheet = getOrCreateSheet(sheetName);
-  var data = sheet.getDataRange().getValues();
-  var records = [];
+  try {
+    var sheetName = (e && e.parameter && e.parameter.sheet) ? e.parameter.sheet : 'WG6_Defects';
+    var sheet = getOrCreateSheet(sheetName);
+    var data = sheet.getDataRange().getValues();
+    var records = [];
 
-  for (var i = 1; i < data.length; i++) {
-    if (data[i][0] !== '') {
-      records.push({
-        id: String(data[i][0]),
-        date: formatDateValue(data[i][1]),
-        workOrder: String(data[i][2]),
-        department: String(data[i][3]),
-        machine: String(data[i][4]),
-        operator: String(data[i][5]),
-        defect: String(data[i][6]),
-        quantity: Number(data[i][7]) || 0,
-        unit: String(data[i][8] || 'แผ่น'),
-        updatedAt: String(data[i][9] || '')
-      });
+    // เริ่มอ่านจากแถวที่ 2 (ข้ามแถวหัวตารางแถวที่ 1)
+    for (var i = 1; i < data.length; i++) {
+      if (data[i][0] !== '' && data[i][0] !== null) {
+        records.push({
+          id: String(data[i][0] || ''),
+          date: formatDateValue(data[i][1]),
+          workOrder: String(data[i][2] || ''),
+          department: String(data[i][3] || ''),
+          machine: String(data[i][4] || ''),
+          operator: String(data[i][5] || ''),
+          qaName: String(data[i][6] || ''),
+          defect: String(data[i][7] || ''),
+          quantity: Number(data[i][8]) || 0,
+          unit: String(data[i][9] || 'แผ่น'),
+          correctiveAction: String(data[i][10] || ''),
+          cancelReason: String(data[i][11] || ''),
+          updatedAt: String(data[i][12] || '')
+        });
+      }
     }
-  }
 
-  return ContentService.createTextOutput(JSON.stringify({
-    status: 'success',
-    records: records
-  })).setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(JSON.stringify({
+      status: 'success',
+      records: records
+    })).setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({
+      status: 'error',
+      message: err.toString()
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
 }
 
 function doPost(e) {
@@ -872,32 +885,36 @@ function doPost(e) {
     var sheet = getOrCreateSheet(sheetName);
     var rec = payload.record;
 
+    var rowValues = [
+      String(rec.id || ''),
+      String(rec.date || ''),
+      String(rec.workOrder || ''),
+      String(rec.department || ''),
+      String(rec.machine || ''),
+      String(rec.operator || ''),
+      String(rec.qaName || ''),
+      String(rec.defect || ''),
+      Number(rec.quantity) || 0,
+      String(rec.unit || 'แผ่น'),
+      String(rec.correctiveAction || ''),
+      String(rec.cancelReason || ''),
+      new Date().toISOString()
+    ];
+
     if (action === 'create') {
-      sheet.appendRow([
-        rec.id, rec.date, rec.workOrder, rec.department,
-        rec.machine, rec.operator, rec.defect, rec.quantity,
-        rec.unit, new Date().toISOString()
-      ]);
+      sheet.appendRow(rowValues);
     } else if (action === 'update') {
       var rows = sheet.getDataRange().getValues();
       var found = false;
       for (var i = 1; i < rows.length; i++) {
         if (String(rows[i][0]) === String(rec.id)) {
-          sheet.getRange(i + 1, 1, 1, 10).setValues([[
-            rec.id, rec.date, rec.workOrder, rec.department,
-            rec.machine, rec.operator, rec.defect, rec.quantity,
-            rec.unit, new Date().toISOString()
-          ]]);
+          sheet.getRange(i + 1, 1, 1, rowValues.length).setValues([rowValues]);
           found = true;
           break;
         }
       }
       if (!found) {
-        sheet.appendRow([
-          rec.id, rec.date, rec.workOrder, rec.department,
-          rec.machine, rec.operator, rec.defect, rec.quantity,
-          rec.unit, new Date().toISOString()
-        ]);
+        sheet.appendRow(rowValues);
       }
     } else if (action === 'delete') {
       var rowsDel = sheet.getDataRange().getValues();
@@ -929,9 +946,9 @@ function getOrCreateSheet(sheetName) {
     sheet = ss.insertSheet(sheetName);
     sheet.appendRow([
       'ID', 'วันที่แจ้ง', 'เลขที่ใบสั่งผลิต', 'แผนก', 'เครื่องจักร',
-      'หัวหน้าเครื่อง', 'ปัญหาที่พบ', 'จำนวนที่พบ', 'หน่วยนับ', 'อัปเดตล่าสุด'
+      'หัวหน้าเครื่อง', 'ชื่อ QA', 'ปัญหาที่พบ', 'จำนวน', 'หน่วย', 'มาตรการแก้ไข', 'สาเหตุยกงานลง', 'อัปเดตล่าสุด'
     ]);
-    sheet.getRange(1, 1, 1, 10).setFontWeight('bold').setBackground('#0F2544').setFontColor('#FBBF24');
+    sheet.getRange(1, 1, 1, 13).setFontWeight('bold').setBackground('#0F2544').setFontColor('#FBBF24');
   }
   return sheet;
 }
@@ -940,7 +957,7 @@ function formatDateValue(val) {
   if (val instanceof Date) {
     return Utilities.formatDate(val, Session.getScriptTimeZone(), 'yyyy-MM-dd');
   }
-  return String(val);
+  return String(val || '');
 }</pre>
                     </div>
                 </div>
