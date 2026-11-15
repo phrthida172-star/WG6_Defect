@@ -1069,7 +1069,7 @@ function formatDateValue(val) {
             "ปั้มนูนไม่ตรง", "ปั๊มเคไม่ตรง", "ขุยกระดาษ", "ปั๊มกล่องเกย", "ปั๊มกล่องเอียง",
             "ปั๊มนูนไม่ถูกตำแหน่ง", "ปั๊มเคไม่ถูกตำแหน่ง", "กาวล่อน", "กาวติด", "กาวเลอะ",
             "กาวเอียง", "กาวไม่ตรงตำแหน่ง", "ติดกล่องห่าง", "ติดกล่องเกย", "ติดกล่องเอียง",
-            "ลังบรรจุไม่ได้มาตรฐาน", "คัด100%ไม่มีประสิทธิภาพ", "งานโค่น"
+            "ลังบรรจุไม่ได้มาตรฐาน", "คัด100%ไม่มีประสิทธิภาพ", "งานโค่น", "ไม่ปฏิบัติตามระบบ"
         ];
 
         // ชุดสีสำหรับแยกสีแต่ละแท่งกราฟ
@@ -1175,13 +1175,16 @@ function formatDateValue(val) {
                 { id: 'WG6-1002', date: getISODateOffset(0), workOrder: 'WO-2611-0102', department: 'ปั๊ม', machine: '3131', operator: 'คุณวิชัย ปั๊มทอง', qaName: 'คุณมนัส QA', defect: 'ปั๊มไม่ตรง', quantity: 80, unit: 'ชิ้น', correctiveAction: 'อนุมัติส่งเฉพาะล็อต', cancelReason: 'ตรวจสอบแล้วอยู่ในเกณฑ์ยอมรับได้' },
                 { id: 'WG6-1003', date: getISODateOffset(-1), workOrder: 'WO-2611-0095', department: 'อาบมันรีดเงา', machine: '3165', operator: 'คุณประเสริฐ เงางาม', qaName: 'คุณสุดารัตน์ QA', defect: 'ค่าความเงาไม่ได้มาตรฐาน', quantity: 200, unit: 'แผ่น', correctiveAction: 'รอสรุป', cancelReason: 'รอหัวหน้าแผนกอนุมัติซ้ำ' },
                 { id: 'WG6-1004', date: getISODateOffset(-2), workOrder: 'WO-2611-0082', department: 'ขึ้นรูปกล่อง', machine: '6101', operator: 'คุณมานพ ขึ้นกล่อง', qaName: 'คุณอภิชาติ QA', defect: 'กาวล่อน', quantity: 45, unit: 'ชิ้น', correctiveAction: 'แก้ไขไม่ได้ยกงานลง', cancelReason: 'กาวเสื่อมสภาพไม่ติดเนื้อกระดาษ' },
-                { id: 'WG6-1005', date: getISODateOffset(-3), workOrder: 'WO-2611-0071', department: 'พิมพ์', machine: '2103', operator: 'คุณสมชาย พิมพ์ดี', qaName: 'คุณมนัส QA', defect: 'จุดขาว', quantity: 120, unit: 'แผ่น', correctiveAction: 'คัด 100%', cancelReason: 'ทำความสะอาดลูกยางแล้วคัดใหม่' }
+                { id: 'WG6-1005', date: getISODateOffset(-3), workOrder: 'WO-2611-0071', department: 'พิมพ์', machine: '2103', operator: 'คุณสมชาย พิมพ์ดี', qaName: 'คุณมนัส QA', defect: 'จุดขาว', quantity: 120, unit: 'แผ่น', correctiveAction: 'คัด 100%', cancelReason: 'ทำความสะอาดลูกยางแล้วคัดใหม่' },
+                { id: 'WG6-1006', date: getISODateOffset(-1), workOrder: 'WO-2611-0110', department: 'แกะ', machine: 'แผนกแกะ', operator: 'คุณสมศรี แกะงาน', qaName: 'คุณสุดารัตน์ QA', defect: 'งานโค่น', quantity: 300, unit: 'ชิ้น', correctiveAction: 'คัด 100%', cancelReason: 'คัดแยกชิ้นงานที่โค่นออก' },
+                { id: 'WG6-1007', date: getISODateOffset(-2), workOrder: 'WO-2611-0115', department: 'ปั๊ม', machine: '4101', operator: 'คุณชาญชัย ปั๊มนูน', qaName: 'คุณอภิชาติ QA', defect: 'ปั๊มนูนไม่ได้มาตรฐาน', quantity: 95, unit: 'แผ่น', correctiveAction: 'อนุมัติส่งเฉพาะล็อต', cancelReason: 'ความลึกนูนอยู่ในพิกัดยอมรับ' },
+                { id: 'WG6-1008', date: getISODateOffset(-4), workOrder: 'WO-2611-0060', department: 'พิมพ์', machine: '2104', operator: 'คุณสมชาย พิมพ์ดี', qaName: 'คุณมนัส QA', defect: 'พิมพ์ไม่ตรง', quantity: 210, unit: 'แผ่น', correctiveAction: 'แก้ไขไม่ได้ยกงานลง', cancelReason: 'เพลทพิมพ์เคลื่อนผิดตำแหน่งหลุดเกณฑ์' }
             ];
             allRecords = sample;
             saveRecordsToStorage();
             refreshAllViews();
             if (showNoti) {
-                showToast('โหลดข้อมูลตัวอย่าง WG6 สำเร็จแล้ว', 'success');
+                showToast('เพิ่มรายการข้อมูลตัวอย่างใหม่เรียบร้อยแล้ว', 'success');
             }
         }
 
