@@ -220,7 +220,43 @@
             <!-- แถบตัวกรองข้อมูล (Filter Bar) -->
             <div class="bg-white rounded-2xl shadow-sm border border-blue-100 p-4 gold-card-accent">
                 <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 flex-grow">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 flex-grow">
+                        <!-- เพิ่มตัวกรองเดือน -->
+                        <div>
+                            <label class="block text-xs font-semibold text-navy-800 mb-1">
+                                <i class="fa-regular fa-calendar-days text-gold-600 mr-1"></i>เดือน
+                            </label>
+                            <select id="filterMonth" onchange="applyDashboardFilters()"
+                                    class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold-500 bg-slate-50">
+                                <option value="ALL">ทุกเดือน (ทั้งหมด)</option>
+                                <option value="01">มกราคม</option>
+                                <option value="02">กุมภาพันธ์</option>
+                                <option value="03">มีนาคม</option>
+                                <option value="04">เมษายน</option>
+                                <option value="05">พฤษภาคม</option>
+                                <option value="06">มิถุนายน</option>
+                                <option value="07">กรกฎาคม</option>
+                                <option value="08">สิงหาคม</option>
+                                <option value="09">กันยายน</option>
+                                <option value="10">ตุลาคม</option>
+                                <option value="11">พฤศจิกายน</option>
+                                <option value="12">ธันวาคม</option>
+                            </select>
+                        </div>
+                        <!-- เพิ่มตัวกรอง พ.ศ. -->
+                        <div>
+                            <label class="block text-xs font-semibold text-navy-800 mb-1">
+                                <i class="fa-regular fa-calendar text-gold-600 mr-1"></i>พ.ศ.
+                            </label>
+                            <select id="filterYear" onchange="applyDashboardFilters()"
+                                    class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold-500 bg-slate-50">
+                                <option value="ALL">ทุก พ.ศ. (ทั้งหมด)</option>
+                                <option value="2026">2569</option>
+                                <option value="2025">2568</option>
+                                <option value="2024">2567</option>
+                                <option value="2023">2566</option>
+                            </select>
+                        </div>
                         <div>
                             <label class="block text-xs font-semibold text-navy-800 mb-1">
                                 <i class="fa-regular fa-calendar text-gold-600 mr-1"></i>ตั้งแต่วันที่
@@ -410,6 +446,23 @@
                         <canvas id="trendChart"></canvas>
                     </div>
                 </div>
+
+                <!-- กราฟที่ 5: สถิติ QA ผู้แจ้งปัญหา (เพิ่มใหม่) -->
+                <div class="bg-white rounded-2xl shadow-sm border border-blue-100 p-5 lg:col-span-2">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-base font-bold text-navy-900 flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span>
+                                สถิติการแจ้งปัญหาแยกตามรายชื่อ QA ผู้ตรวจสอบ
+                            </h3>
+                            <p class="text-xs text-slate-500">เปรียบเทียบจำนวนรายการปัญหาที่ QA แต่ละท่านตรวจพบและแจ้งในระบบ</p>
+                        </div>
+                        <span class="text-xs font-semibold px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 border border-amber-200">QA Statistics</span>
+                    </div>
+                    <div class="relative h-72 w-full">
+                        <canvas id="qaChart"></canvas>
+                    </div>
+                </div>
             </div>
 
             <!-- ตารางรายการปัญหาล่าสุด (Recent Issues Table) -->
@@ -525,11 +578,20 @@
                             <label for="inputOperator" class="block text-sm font-bold text-navy-900 mb-1.5">
                                 5. หัวหน้าเครื่อง <span class="text-red-500">*</span>
                             </label>
-                            <input type="text" id="inputOperator" required placeholder="ระบุชื่อ-นามสกุล หรือชื่อเล่น"
+                            <input type="text" id="inputOperator" required placeholder="ระบุชื่อหัวหน้าเครื่อง"
                                    class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-gold-500 bg-slate-50">
                         </div>
 
-                        <!-- 6. ปัญหาที่พบ (เลือกได้ + พิมพ์ค้นหาได้ครบทั้ง 42 รายการ) -->
+                        <!-- 5.1 ชื่อ QA ผู้แจ้งปัญหา (เพิ่มใหม่) -->
+                        <div>
+                            <label for="inputQaName" class="block text-sm font-bold text-navy-900 mb-1.5">
+                                5.1 ชื่อ QA ผู้แจ้งปัญหา <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="inputQaName" required placeholder="ระบุชื่อ QA ผู้แจ้ง"
+                                   class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-gold-500 bg-slate-50">
+                        </div>
+
+                        <!-- 6. ปัญหาที่พบ -->
                         <div class="relative lg:col-span-2">
                             <label for="inputDefectSearch" class="block text-sm font-bold text-navy-900 mb-1.5">
                                 6. ปัญหาที่พบระหว่างการผลิต <span class="text-red-500">*</span>
@@ -561,6 +623,31 @@
                                     <option value="ชิ้น">ชิ้น</option>
                                 </select>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- แถวเพิ่มเติม: มาตรการแก้ไข และหมายเหตุ/สาเหตุเพิ่มเติม -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 pt-3 border-t border-slate-100">
+                        <div>
+                            <label for="inputCorrectiveAction" class="block text-sm font-bold text-navy-900 mb-1.5">
+                                8. มาตรการแก้ไข (Corrective Action) <span class="text-red-500">*</span>
+                            </label>
+                            <select id="inputCorrectiveAction" required onchange="handleCorrectiveActionChange(this.value)"
+                                    class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gold-500 bg-slate-50 font-medium text-navy-900">
+                                <option value="" disabled selected>-- เลือกมาตรการแก้ไข --</option>
+                                <option value="คัด 100%">คัด 100%</option>
+                                <option value="อนุมัติส่งเฉพาะล็อต">อนุมัติส่งเฉพาะล็อต</option>
+                                <option value="รอสรุป">รอสรุป</option>
+                                <option value="แก้ไขไม่ได้ยกงานลง">แก้ไขไม่ได้ยกงานลง</option>
+                            </select>
+                        </div>
+
+                        <div id="cancelReasonWrapper">
+                            <label for="inputCancelReason" class="block text-sm font-bold text-navy-900 mb-1.5" id="cancelReasonLabel">
+                                8.1 ระบุรายละเอียด/สาเหตุเพิ่มเติม
+                            </label>
+                            <input type="text" id="inputCancelReason" placeholder="พิมพ์รายละเอียดเพิ่มเติมของมาตรการแก้ไขที่นี่..."
+                                   class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gold-500 bg-slate-50">
                         </div>
                     </div>
 
@@ -898,6 +985,42 @@ function formatDateValue(val) {
     <!-- ==================== JAVASCRIPT LOGIC ==================== -->
     <script>
         // =========================================================================
+        // 0. ฟังก์ชันสลับหน้าแท็บ (NAVIGATION TABS) - ประกาศไว้บนสุดเพื่อให้ใช้งานได้ทันที
+        // =========================================================================
+        function switchTab(tabName) {
+            const tabs = ['dashboard', 'record', 'settings'];
+            tabs.forEach(t => {
+                const viewEl = document.getElementById(`view-${t}`);
+                if (!viewEl) return;
+                if (t === tabName) {
+                    viewEl.classList.remove('hidden');
+                } else {
+                    viewEl.classList.add('hidden');
+                }
+            });
+
+            // อัปเดตสไตล์ปุ่ม Nav ด้านบน
+            const tabDashboard = document.getElementById('tab-dashboard');
+            const tabRecord = document.getElementById('tab-record');
+            if (tabDashboard && tabRecord) {
+                if (tabName === 'dashboard') {
+                    tabDashboard.className = 'nav-tab active flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all whitespace-nowrap bg-gradient-to-r from-gold-500 to-gold-400 text-navy-950 shadow-md';
+                    tabRecord.className = 'nav-tab flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all whitespace-nowrap text-blue-100 hover:bg-white/10';
+                } else if (tabName === 'record') {
+                    tabRecord.className = 'nav-tab active flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all whitespace-nowrap bg-gradient-to-r from-gold-500 to-gold-400 text-navy-950 shadow-md';
+                    tabDashboard.className = 'nav-tab flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all whitespace-nowrap text-blue-100 hover:bg-white/10';
+                } else {
+                    tabDashboard.className = 'nav-tab flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all whitespace-nowrap text-blue-100 hover:bg-white/10';
+                    tabRecord.className = 'nav-tab flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all whitespace-nowrap text-blue-100 hover:bg-white/10';
+                }
+            }
+
+            if (tabName === 'dashboard') {
+                applyDashboardFilters();
+            }
+        }
+
+        // =========================================================================
         // 1. ข้อมูลหลัก (MASTER DATA) ตามที่ระบุครบถ้วน 100%
         // =========================================================================
         const DEPARTMENTS = [
@@ -932,28 +1055,24 @@ function formatDateValue(val) {
             "ลังบรรจุไม่ได้มาตรฐาน", "คัด100%ไม่มีประสิทธิภาพ", "งานโค่น"
         ];
 
-        // ชุดสีสำหรับแยกสีแต่ละแท่งกราฟ (Multi-color distinct palette)
+        // ชุดสีสำหรับแยกสีแต่ละแท่งกราฟ
         const MULTI_COLOR_PALETTE = [
             '#1D4ED8', '#D4AF37', '#0D9488', '#DC2626', '#7C3AED',
             '#EA580C', '#0284C7', '#16A34A', '#DB2777', '#4F46E5',
             '#CA8A04', '#059669', '#E11D48', '#2563EB', '#9333EA'
         ];
 
-        // สีเฉพาะของแต่ละแผนก (ให้สีคงที่ทุกครั้งที่แสดงผล)
         const DEPARTMENT_COLORS = {
-            "พิมพ์": "#1D4ED8",          // Royal Blue
-            "อาบมันรีดเงา": "#0D9488",   // Teal
-            "ปั๊ม": "#D4AF37",           // Metallic Gold
-            "แกะ": "#EA580C",           // Vivid Orange
-            "ทั่วไป": "#6366F1",         // Indigo
-            "ขึ้นรูปกล่อง": "#DC2626",  // Crimson Red
-            "คลังสินค้า": "#059669",     // Emerald Green
-            "บริการลูกค้า": "#9333EA"   // Royal Purple
+            "พิมพ์": "#1D4ED8",
+            "อาบมันรีดเงา": "#0D9488",
+            "ปั๊ม": "#D4AF37",
+            "แกะ": "#EA580C",
+            "ทั่วไป": "#6366F1",
+            "ขึ้นรูปกล่อง": "#DC2626",
+            "คลังสินค้า": "#059669",
+            "บริการลูกค้า": "#9333EA"
         };
 
-        // =========================================================================
-        // 2. ตัวแปรสถานะของระบบ (STATE & STORAGE)
-        // =========================================================================
         const STORAGE_KEY_RECORDS = 'wg6_production_defects_v1';
         const STORAGE_KEY_SETTINGS = 'wg6_sheet_settings_v1';
         const STORAGE_KEY_LOGO = 'wg6_custom_logo_v1';
@@ -966,208 +1085,56 @@ function formatDateValue(val) {
         };
         let autoSyncIntervalId = null;
 
-        // ตัวแปรเก็บ Instance ของ Chart.js
         let chartInstances = {
             dept: null,
             defect: null,
             machine: null,
-            trend: null
+            trend: null,
+            qa: null
         };
 
-        // =========================================================================
-        // 3. เริ่มต้นระบบเมื่อโหลดหน้าเว็บ (INITIALIZATION)
-        // =========================================================================
         window.onload = function() {
-            initClock();
-            populateDropdownOptions();
-            loadSavedLogo();
             loadSettings();
+            loadCustomLogo();
+            initDropdowns();
             loadRecordsFromStorage();
+            initClock();
             
-            // ตั้งค่าวันที่เริ่มต้นในฟอร์มเป็นวันนี้
-            document.getElementById('inputDate').value = getTodayISO();
+            if (allRecords.length === 0) {
+                loadSampleData(false);
+            } else {
+                refreshAllViews();
+            }
 
-            // อัปเดต UI ทั้งหมด
-            refreshAllViews();
-            updateLastSyncBadge();
-
-            // หากตั้งค่า Google Sheet URL ไว้แล้ว ให้ดึงข้อมูลล่าสุดทันที
+            setupAutoSyncTimer();
             if (sheetSettings.scriptUrl) {
                 fetchFromGoogleSheet(true);
             }
 
-            // เริ่มระบบ Auto-Sync เรียลไทม์
-            setupAutoSyncTimer();
-
-            // ปิด Dropdown ค้นหาเมื่อคลิกพื้นที่อื่น
             document.addEventListener('click', function(e) {
                 if (!e.target.closest('#inputMachineSearch') && !e.target.closest('#machineDropdownList')) {
-                    document.getElementById('machineDropdownList').classList.add('hidden');
+                    document.getElementById('machineDropdownList')?.classList.add('hidden');
                 }
                 if (!e.target.closest('#inputDefectSearch') && !e.target.closest('#defectDropdownList')) {
-                    document.getElementById('defectDropdownList').classList.add('hidden');
+                    document.getElementById('defectDropdownList')?.classList.add('hidden');
                 }
             });
         };
 
-        // นาฬิกาเรียลไทม์ภาษาไทย
         function initClock() {
-            const update = () => {
+            function update() {
                 const now = new Date();
-                document.getElementById('realtimeClock').textContent = now.toLocaleTimeString('th-TH', { hour12: false });
-                document.getElementById('realtimeDate').textContent = now.toLocaleDateString('th-TH', {
-                    weekday: 'short', day: 'numeric', month: 'short', year: 'numeric'
-                });
-            };
+                const timeStr = now.toLocaleTimeString('th-TH', { hour12: false });
+                const dateStr = now.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
+                const clockEl = document.getElementById('realtimeClock');
+                const dateEl = document.getElementById('realtimeDate');
+                if (clockEl) clockEl.textContent = timeStr;
+                if (dateEl) dateEl.textContent = dateStr;
+            }
             update();
             setInterval(update, 1000);
         }
 
-        function getTodayISO() {
-            const now = new Date();
-            const offset = now.getTimezoneOffset() * 60000;
-            return new Date(now.getTime() - offset).toISOString().split('T')[0];
-        }
-
-        // จัดการกรณีโหลดโลโก้ KIMpai.jpg ไม่พบ ให้มี fallback และปุ่มอัปโหลด
-        function handleLogoError(img) {
-            img.onerror = null;
-            // สร้างภาพสำรองที่ระบุชื่อ KIM PAI ชัดเจนเผื่อกรณีเปิดไฟล์เดี่ยวโดยไม่มีไฟล์ KIMpai.jpg ข้างๆ
-            img.src = "https://placehold.co/220x148/F3E5AB/0F2544?text=KIM+PAI%0APRINTING+%26+PACKAGING";
-        }
-
-        function uploadCustomLogo(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const dataUrl = e.target.result;
-                document.getElementById('companyLogoImg').src = dataUrl;
-                try {
-                    localStorage.setItem(STORAGE_KEY_LOGO, dataUrl);
-                    showToast('อัปเดตโลโก้บริษัทเรียบร้อยแล้ว', 'success');
-                } catch (err) {
-                    showToast('แสดงโลโก้ชั่วคราว (ไฟล์ขนาดใหญ่เกินกว่าบันทึกถาวร)', 'warning');
-                }
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function loadSavedLogo() {
-            const savedLogo = localStorage.getItem(STORAGE_KEY_LOGO);
-            if (savedLogo) {
-                document.getElementById('companyLogoImg').src = savedLogo;
-            }
-        }
-
-        // =========================================================================
-        // 4. เติมตัวเลือกใน Dropdown และ Searchable Lists
-        // =========================================================================
-        function populateDropdownOptions() {
-            // 1. แผนก (ในฟอร์มบันทึก, ตัวกรอง Dashboard, ตัวกรองตาราง)
-            const inputDept = document.getElementById('inputDepartment');
-            const filterDept = document.getElementById('filterDepartment');
-            const tableFilterDept = document.getElementById('tableFilterDept');
-
-            DEPARTMENTS.forEach(dept => {
-                inputDept.add(new Option(dept, dept));
-                filterDept.add(new Option(dept, dept));
-                tableFilterDept.add(new Option(dept, dept));
-            });
-
-            // 2. เครื่องจักร (ในตัวกรอง Dashboard และรายการเลือกในฟอร์ม)
-            const filterMachine = document.getElementById('filterMachine');
-            MACHINES.forEach(m => {
-                filterMachine.add(new Option(m, m));
-            });
-
-            renderMachineDropdownList(MACHINES);
-            renderDefectDropdownList(DEFECT_TYPES);
-        }
-
-        function openDropdown(listId) {
-            document.getElementById(listId).classList.remove('hidden');
-        }
-
-        function renderMachineDropdownList(items) {
-            const listEl = document.getElementById('machineDropdownList');
-            if (items.length === 0) {
-                listEl.innerHTML = `<div class="px-3.5 py-2.5 text-xs text-slate-400">ไม่พบหมายเลขเครื่องที่ค้นหา</div>`;
-                return;
-            }
-            listEl.innerHTML = items.map(m => `
-                <div onclick="selectMachineOption('${m}')"
-                     class="px-3.5 py-2 text-sm hover:bg-blue-50 cursor-pointer flex items-center justify-between border-b border-slate-50 last:border-0">
-                    <span class="font-medium text-navy-900">${m}</span>
-                    <span class="text-[11px] text-slate-400">เลือก</span>
-                </div>
-            `).join('');
-        }
-
-        function filterMachineDropdown(keyword) {
-            openDropdown('machineDropdownList');
-            const q = keyword.trim().toLowerCase();
-            const filtered = MACHINES.filter(m => m.toLowerCase().includes(q));
-            renderMachineDropdownList(filtered);
-        }
-
-        function selectMachineOption(val) {
-            document.getElementById('inputMachineSearch').value = val;
-            document.getElementById('machineDropdownList').classList.add('hidden');
-        }
-
-        function renderDefectDropdownList(items) {
-            const listEl = document.getElementById('defectDropdownList');
-            if (items.length === 0) {
-                listEl.innerHTML = `<div class="px-3.5 py-2.5 text-xs text-slate-400">ไม่พบชื่อปัญหาที่ค้นหา</div>`;
-                return;
-            }
-            listEl.innerHTML = items.map(d => `
-                <div onclick="selectDefectOption('${d}')"
-                     class="px-3.5 py-2 text-sm hover:bg-amber-50 cursor-pointer flex items-center justify-between border-b border-slate-50 last:border-0">
-                    <span class="font-medium text-navy-900">${d}</span>
-                    <span class="text-[11px] text-gold-700">เลือกปัญหา</span>
-                </div>
-            `).join('');
-        }
-
-        function filterDefectDropdown(keyword) {
-            openDropdown('defectDropdownList');
-            const q = keyword.trim().toLowerCase();
-            const filtered = DEFECT_TYPES.filter(d => d.toLowerCase().includes(q));
-            renderDefectDropdownList(filtered);
-        }
-
-        function selectDefectOption(val) {
-            document.getElementById('inputDefectSearch').value = val;
-            document.getElementById('defectDropdownList').classList.add('hidden');
-        }
-
-        // =========================================================================
-        // 5. การสลับหน้าแท็บ (NAVIGATION TABS)
-        // =========================================================================
-        function switchTab(tabName) {
-            const tabs = ['dashboard', 'record', 'settings'];
-            tabs.forEach(t => {
-                const viewEl = document.getElementById(`view-${t}`);
-                const btnEl = document.getElementById(`tab-${t}`);
-                if (t === tabName) {
-                    viewEl.classList.remove('hidden');
-                    btnEl.className = 'nav-tab active flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all whitespace-nowrap bg-gradient-to-r from-gold-500 to-gold-400 text-navy-950 shadow-md';
-                } else {
-                    viewEl.classList.add('hidden');
-                    btnEl.className = 'nav-tab flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all whitespace-nowrap text-blue-100 hover:bg-white/10';
-                }
-            });
-
-            if (tabName === 'dashboard') {
-                applyDashboardFilters();
-            }
-        }
-
-        // =========================================================================
-        // 6. การจัดการข้อมูล (CRUD: เพิ่ม / แก้ไข / ลบ / โหลดตัวอย่าง)
-        // =========================================================================
         function loadRecordsFromStorage() {
             const saved = localStorage.getItem(STORAGE_KEY_RECORDS);
             if (saved) {
@@ -1177,224 +1144,322 @@ function formatDateValue(val) {
                     allRecords = [];
                 }
             }
-            // หากยังไม่มีข้อมูลเลย ให้โหลดข้อมูลตัวอย่างของ WG6 เพื่อให้กราฟแสดงผลสวยงามทันที
-            if (!allRecords || allRecords.length === 0) {
-                loadSampleData(false);
-            }
         }
 
         function saveRecordsToStorage() {
             localStorage.setItem(STORAGE_KEY_RECORDS, JSON.stringify(allRecords));
-            document.getElementById('badgeTotalRecords').textContent = allRecords.length;
+            const badge = document.getElementById('badgeTotalRecords');
+            if (badge) badge.textContent = allRecords.length;
         }
 
-        function loadSampleData(notify = true) {
-            const today = new Date();
-            const getOffsetDate = (daysAgo) => {
-                const d = new Date(today);
-                d.setDate(d.getDate() - daysAgo);
-                const offset = d.getTimezoneOffset() * 60000;
-                return new Date(d.getTime() - offset).toISOString().split('T')[0];
-            };
-
-            allRecords = [
-                { id: 'WG6-1001', date: getOffsetDate(0), workOrder: 'WO-6911-0812', department: 'พิมพ์', machine: '2104', operator: 'สมชาย ใจดี', defect: 'สีไม่ได้มาตรฐาน', quantity: 450, unit: 'แผ่น' },
-                { id: 'WG6-1002', date: getOffsetDate(0), workOrder: 'WO-6911-0815', department: 'ปั๊ม', machine: '4102', operator: 'วิชัย รุ่งเรือง', defect: 'ปั๊มไม่ตรง', quantity: 1200, unit: 'ชิ้น' },
-                { id: 'WG6-1003', date: getOffsetDate(0), workOrder: 'WO-6911-0819', department: 'อาบมันรีดเงา', machine: '3131', operator: 'ประเสริฐ ศรีสุข', defect: 'UVเป็นรอย', quantity: 320, unit: 'แผ่น' },
-                { id: 'WG6-1004', date: getOffsetDate(1), workOrder: 'WO-6911-0798', department: 'ขึ้นรูปกล่อง', machine: '6104', operator: 'นภา พรหมมา', defect: 'กาวล่อน', quantity: 2500, unit: 'ชิ้น' },
-                { id: 'WG6-1005', date: getOffsetDate(1), workOrder: 'WO-6911-0801', department: 'พิมพ์', machine: '2101', operator: 'กิตติพงษ์ แสงทอง', defect: 'พิมพ์ไม่ตรง', quantity: 600, unit: 'แผ่น' },
-                { id: 'WG6-1006', date: getOffsetDate(1), workOrder: 'WO-6911-0805', department: 'ปั๊ม', machine: '4105', operator: 'สุรศักดิ์ มั่นคง', defect: 'เส้นพับแตก', quantity: 850, unit: 'แผ่น' },
-                { id: 'WG6-1007', date: getOffsetDate(2), workOrder: 'WO-6911-0770', department: 'แกะ', machine: 'แผนกแกะ', operator: 'สุดา รักงาน', defect: 'ขุยกระดาษ', quantity: 1800, unit: 'ชิ้น' },
-                { id: 'WG6-1008', date: getOffsetDate(2), workOrder: 'WO-6911-0774', department: 'ขึ้นรูปกล่อง', machine: '6108', operator: 'วันชัย ทองแท้', defect: 'ติดกล่องเอียง', quantity: 950, unit: 'ชิ้น' },
-                { id: 'WG6-1009', date: getOffsetDate(2), workOrder: 'WO-6911-0781', department: 'พิมพ์', machine: '2106', operator: 'ธนากร วัฒนา', defect: 'ขี้หมึก', quantity: 280, unit: 'แผ่น' },
-                { id: 'WG6-1010', date: getOffsetDate(3), workOrder: 'WO-6911-0752', department: 'อาบมันรีดเงา', machine: '3165', operator: 'มานะ อดทน', defect: 'ค่าความเงาไม่ได้มาตรฐาน', quantity: 410, unit: 'แผ่น' },
-                { id: 'WG6-1011', date: getOffsetDate(3), workOrder: 'WO-6911-0760', department: 'ปั๊ม', machine: '5104', operator: 'เอกชัย บุญมี', defect: 'ปั๊มเคไม่ตรง', quantity: 530, unit: 'แผ่น' },
-                { id: 'WG6-1012', date: getOffsetDate(4), workOrder: 'WO-6911-0741', department: 'คลังสินค้า', machine: 'คลังสินค้า', operator: 'สมหญิง จริงใจ', defect: 'ลังบรรจุไม่ได้มาตรฐาน', quantity: 140, unit: 'ชิ้น' },
-                { id: 'WG6-1013', date: getOffsetDate(4), workOrder: 'WO-6911-0745', department: 'ทั่วไป', machine: 'แผนกทั่วไป', operator: 'อำนาจ เจริญ', defect: 'คัด100%ไม่มีประสิทธิภาพ', quantity: 3100, unit: 'ชิ้น' },
-                { id: 'WG6-1014', date: getOffsetDate(5), workOrder: 'WO-6911-0720', department: 'พิมพ์', machine: '2104', operator: 'สมชาย ใจดี', defect: 'สีเลอะ', quantity: 390, unit: 'แผ่น' }
+        function loadSampleData(showNoti = true) {
+            const sample = [
+                { id: 'WG6-1001', date: getISODateOffset(0), workOrder: 'WO-2611-0101', department: 'พิมพ์', machine: '2101', operator: 'คุณสมชาย พิมพ์ดี', qaName: 'คุณสุดารัตน์ QA', defect: 'สีเลอะ', quantity: 150, unit: 'แผ่น', correctiveAction: 'คัด 100%', cancelReason: 'คัดแยกแผ่นที่เสียออก' },
+                { id: 'WG6-1002', date: getISODateOffset(0), workOrder: 'WO-2611-0102', department: 'ปั๊ม', machine: '3131', operator: 'คุณวิชัย ปั๊มทอง', qaName: 'คุณมนัส QA', defect: 'ปั๊มไม่ตรง', quantity: 80, unit: 'ชิ้น', correctiveAction: 'อนุมัติส่งเฉพาะล็อต', cancelReason: 'ตรวจสอบแล้วอยู่ในเกณฑ์ยอมรับได้' },
+                { id: 'WG6-1003', date: getISODateOffset(-1), workOrder: 'WO-2611-0095', department: 'อาบมันรีดเงา', machine: '3165', operator: 'คุณประเสริฐ เงางาม', qaName: 'คุณสุดารัตน์ QA', defect: 'ค่าความเงาไม่ได้มาตรฐาน', quantity: 200, unit: 'แผ่น', correctiveAction: 'รอสรุป', cancelReason: 'รอหัวหน้าแผนกอนุมัติซ้ำ' },
+                { id: 'WG6-1004', date: getISODateOffset(-2), workOrder: 'WO-2611-0082', department: 'ขึ้นรูปกล่อง', machine: '6101', operator: 'คุณมานพ ขึ้นกล่อง', qaName: 'คุณอภิชาติ QA', defect: 'กาวล่อน', quantity: 45, unit: 'ชิ้น', correctiveAction: 'แก้ไขไม่ได้ยกงานลง', cancelReason: 'กาวเสื่อมสภาพไม่ติดเนื้อกระดาษ' },
+                { id: 'WG6-1005', date: getISODateOffset(-3), workOrder: 'WO-2611-0071', department: 'พิมพ์', machine: '2103', operator: 'คุณสมชาย พิมพ์ดี', qaName: 'คุณมนัส QA', defect: 'จุดขาว', quantity: 120, unit: 'แผ่น', correctiveAction: 'คัด 100%', cancelReason: 'ทำความสะอาดลูกยางแล้วคัดใหม่' }
             ];
-
+            allRecords = sample;
             saveRecordsToStorage();
             refreshAllViews();
-            if (notify) {
-                showToast('โหลดข้อมูลตัวอย่างโรงพิมพ์เหรียญทองการพิมพ์ (WG6) เรียบร้อยแล้ว', 'success');
+            if (showNoti) {
+                showToast('โหลดข้อมูลตัวอย่าง WG6 สำเร็จแล้ว', 'success');
             }
         }
 
-        // บันทึกหรืออัปเดตข้อมูลจากฟอร์ม
-        function handleFormSubmit(event) {
-            event.preventDefault();
+        function getISODateOffset(days) {
+            const d = new Date();
+            d.setDate(d.getDate() + days);
+            return d.toISOString().split('T')[0];
+        }
 
-            const editId = document.getElementById('editRecordId').value;
-            const dateVal = document.getElementById('inputDate').value;
-            const workOrderVal = document.getElementById('inputWorkOrder').value.trim().toUpperCase();
-            const deptVal = document.getElementById('inputDepartment').value;
-            const machineVal = document.getElementById('inputMachineSearch').value.trim();
-            const operatorVal = document.getElementById('inputOperator').value.trim();
-            const defectVal = document.getElementById('inputDefectSearch').value.trim();
-            const qtyVal = parseInt(document.getElementById('inputQuantity').value, 10) || 0;
-            const unitVal = document.getElementById('inputUnit').value;
+        function getTodayISO() {
+            return new Date().toISOString().split('T')[0];
+        }
 
-            if (!MACHINES.includes(machineVal)) {
-                showToast('กรุณาเลือกหมายเลขเครื่องจักรจากรายการที่กำหนด', 'warning');
-                document.getElementById('inputMachineSearch').focus();
-                return;
+        function initDropdowns() {
+            const deptSelect = document.getElementById('inputDepartment');
+            if (deptSelect) {
+                deptSelect.innerHTML = '<option value="" disabled selected>-- เลือกแผนก --</option>' + 
+                    DEPARTMENTS.map(d => `<option value="${d}">${d}</option>`).join('');
             }
 
-            if (!DEFECT_TYPES.includes(defectVal)) {
-                showToast('กรุณาเลือกประเภทปัญหาจากรายการที่กำหนด', 'warning');
-                document.getElementById('inputDefectSearch').focus();
+            const filterDept = document.getElementById('filterDepartment');
+            if (filterDept) {
+                filterDept.innerHTML = '<option value="ALL">ทุกแผนก (ทั้งหมด)</option>' + 
+                    DEPARTMENTS.map(d => `<option value="${d}">${d}</option>`).join('');
+            }
+
+            const tableDept = document.getElementById('tableFilterDept');
+            if (tableDept) {
+                tableDept.innerHTML = '<option value="ALL">ทุกแผนก</option>' + 
+                    DEPARTMENTS.map(d => `<option value="${d}">${d}</option>`).join('');
+            }
+
+            renderMachineDropdownList(MACHINES);
+            renderDefectDropdownList(DEFECT_TYPES);
+
+            const dateInput = document.getElementById('inputDate');
+            if (dateInput && !dateInput.value) {
+                dateInput.value = getTodayISO();
+            }
+        }
+
+        function renderMachineDropdownList(list) {
+            const container = document.getElementById('machineDropdownList');
+            if (!container) return;
+            if (list.length === 0) {
+                container.innerHTML = `<div class="p-3 text-xs text-slate-400 text-center">ไม่พบเครื่องจักรที่ค้นหา</div>`;
+                return;
+            }
+            container.innerHTML = list.map(m => `
+                <div onclick="selectMachine('${m}')" class="px-3.5 py-2 text-sm hover:bg-gold-50 hover:text-navy-900 cursor-pointer font-medium border-b border-slate-100 last:border-b-0">
+                    เครื่องจักร: <span class="font-bold text-royal-800">${m}</span>
+                </div>
+            `).join('');
+        }
+
+        function filterMachineDropdown(query) {
+            const q = query.trim().toLowerCase();
+            const filtered = MACHINES.filter(m => m.toLowerCase().includes(q));
+            renderMachineDropdownList(filtered);
+            document.getElementById('machineDropdownList')?.classList.remove('hidden');
+        }
+
+        function selectMachine(val) {
+            const input = document.getElementById('inputMachineSearch');
+            if (input) input.value = val;
+            document.getElementById('machineDropdownList')?.classList.add('hidden');
+        }
+
+        function renderDefectDropdownList(list) {
+            const container = document.getElementById('defectDropdownList');
+            if (!container) return;
+            if (list.length === 0) {
+                container.innerHTML = `<div class="p-3 text-xs text-slate-400 text-center">ไม่พบปัญหาที่ค้นหา</div>`;
+                return;
+            }
+            container.innerHTML = list.map(d => `
+                <div onclick="selectDefect('${d}')" class="px-3.5 py-2 text-sm hover:bg-amber-50 hover:text-navy-900 cursor-pointer font-medium border-b border-slate-100 last:border-b-0">
+                    <span class="text-red-700 font-semibold">${d}</span>
+                </div>
+            `).join('');
+        }
+
+        function filterDefectDropdown(query) {
+            const q = query.trim().toLowerCase();
+            const filtered = DEFECT_TYPES.filter(d => d.toLowerCase().includes(q));
+            renderDefectDropdownList(filtered);
+            document.getElementById('defectDropdownList')?.classList.remove('hidden');
+        }
+
+        function selectDefect(val) {
+            const input = document.getElementById('inputDefectSearch');
+            if (input) input.value = val;
+            document.getElementById('defectDropdownList')?.classList.add('hidden');
+        }
+
+        function openDropdown(id) {
+            document.getElementById(id)?.classList.remove('hidden');
+        }
+
+        function handleCorrectiveActionChange(val) {
+            const reasonInput = document.getElementById('inputCancelReason');
+            const reasonLabel = document.getElementById('cancelReasonLabel');
+            const wrapper = document.getElementById('cancelReasonWrapper');
+            if (!reasonInput || !reasonLabel || !wrapper) return;
+
+            if (val === 'แก้ไขไม่ได้ยกงานลง') {
+                reasonLabel.innerHTML = '8.1 ระบุสาเหตุการยกงานลง <span class="text-red-500">*</span>';
+                reasonInput.placeholder = 'กรุณาระบุสาเหตุที่ต้องยกงานลงให้ชัดเจน...';
+                reasonInput.required = true;
+            } else {
+                reasonLabel.innerHTML = '8.1 ระบุรายละเอียด/สาเหตุเพิ่มเติม (ถ้ามี)';
+                reasonInput.placeholder = 'พิมพ์รายละเอียดเพิ่มเติมของมาตรการแก้ไขที่นี่...';
+                reasonInput.required = false;
+            }
+        }
+
+        // =========================================================================
+        // 2. ฟังก์ชันจัดการฟอร์ม (บันทึก / แก้ไข / ลบ)
+        // =========================================================================
+        function handleFormSubmit(event) {
+            event.preventDefault();
+            
+            const editId = document.getElementById('editRecordId').value;
+            const date = document.getElementById('inputDate').value;
+            const workOrder = document.getElementById('inputWorkOrder').value.trim();
+            const department = document.getElementById('inputDepartment').value;
+            const machine = document.getElementById('inputMachineSearch').value.trim();
+            const operator = document.getElementById('inputOperator').value.trim();
+            const qaName = document.getElementById('inputQaName').value.trim();
+            const defect = document.getElementById('inputDefectSearch').value.trim();
+            const quantity = Number(document.getElementById('inputQuantity').value) || 0;
+            const unit = document.getElementById('inputUnit').value;
+            const correctiveAction = document.getElementById('inputCorrectiveAction').value;
+            const cancelReason = document.getElementById('inputCancelReason').value.trim();
+
+            if (!date || !workOrder || !department || !machine || !operator || !qaName || !defect || !quantity || !correctiveAction) {
+                showToast('กรุณากรอกข้อมูลในช่องที่มีเครื่องหมาย * ให้ครบถ้วน', 'warning');
                 return;
             }
 
             if (editId) {
-                // โหมดแก้ไขข้อมูลเดิม
-                const idx = allRecords.findIndex(r => r.id === editId);
+                // โหมดแก้ไข
+                const idx = allRecords.findIndex(r => String(r.id) === String(editId));
                 if (idx !== -1) {
-                    const updatedRecord = {
-                        id: editId,
-                        date: dateVal,
-                        workOrder: workOrderVal,
-                        department: deptVal,
-                        machine: machineVal,
-                        operator: operatorVal,
-                        defect: defectVal,
-                        quantity: qtyVal,
-                        unit: unitVal
+                    allRecords[idx] = {
+                        ...allRecords[idx],
+                        date, workOrder, department, machine, operator, qaName, defect, quantity, unit, correctiveAction, cancelReason,
+                        updatedAt: new Date().toISOString()
                     };
-                    allRecords[idx] = updatedRecord;
-                    saveRecordsToStorage();
-                    refreshAllViews();
-                    sendToGoogleSheet('update', updatedRecord);
-                    showToast(`แก้ไขข้อมูลใบสั่งผลิต ${workOrderVal} เรียบร้อยแล้ว`, 'success');
-                    resetFormToNewMode();
+                    sendToGoogleSheet('update', allRecords[idx]);
+                    showToast('แก้ไขข้อมูลรายการปัญหาเรียบร้อยแล้ว', 'success');
                 }
             } else {
-                // โหมดเพิ่มข้อมูลใหม่
+                // โหมดเพิ่มใหม่
                 const newRecord = {
                     id: 'WG6-' + Date.now().toString().slice(-6),
-                    date: dateVal,
-                    workOrder: workOrderVal,
-                    department: deptVal,
-                    machine: machineVal,
-                    operator: operatorVal,
-                    defect: defectVal,
-                    quantity: qtyVal,
-                    unit: unitVal
+                    date, workOrder, department, machine, operator, qaName, defect, quantity, unit, correctiveAction, cancelReason,
+                    updatedAt: new Date().toISOString()
                 };
                 allRecords.unshift(newRecord);
-                saveRecordsToStorage();
-                refreshAllViews();
                 sendToGoogleSheet('create', newRecord);
-                showToast(`บันทึกปัญหาใบสั่งผลิต ${workOrderVal} เรียบร้อยแล้ว`, 'success');
-                resetFormToNewMode();
+                showToast('บันทึกข้อมูลปัญหาใหม่เรียบร้อยแล้ว', 'success');
             }
+
+            resetFormToNewMode();
+            refreshAllViews();
         }
 
-        // ดึงข้อมูลรายการที่เลือกขึ้นมาแก้ไขบนฟอร์ม
         function startEditRecord(id) {
-            const rec = allRecords.find(r => r.id === id);
-            if (!rec) return;
+            const record = allRecords.find(r => String(r.id) === String(id));
+            if (!record) return;
 
-            switchTab('record');
+            document.getElementById('editRecordId').value = record.id;
+            document.getElementById('inputDate').value = record.date || getTodayISO();
+            document.getElementById('inputWorkOrder').value = record.workOrder || '';
+            document.getElementById('inputDepartment').value = record.department || '';
+            document.getElementById('inputMachineSearch').value = record.machine || '';
+            document.getElementById('inputOperator').value = record.operator || '';
+            document.getElementById('inputQaName').value = record.qaName || '';
+            document.getElementById('inputDefectSearch').value = record.defect || '';
+            document.getElementById('inputQuantity').value = record.quantity || '';
+            document.getElementById('inputUnit').value = record.unit || 'แผ่น';
+            document.getElementById('inputCorrectiveAction').value = record.correctiveAction || '';
+            document.getElementById('inputCancelReason').value = record.cancelReason || '';
 
-            document.getElementById('editRecordId').value = rec.id;
-            document.getElementById('inputDate').value = rec.date;
-            document.getElementById('inputWorkOrder').value = rec.workOrder;
-            document.getElementById('inputDepartment').value = rec.department;
-            document.getElementById('inputMachineSearch').value = rec.machine;
-            document.getElementById('inputOperator').value = rec.operator;
-            document.getElementById('inputDefectSearch').value = rec.defect;
-            document.getElementById('inputQuantity').value = rec.quantity;
-            document.getElementById('inputUnit').value = rec.unit;
+            handleCorrectiveActionChange(record.correctiveAction || '');
 
-            // เปลี่ยน UI ฟอร์มเป็นโหมดแก้ไข
-            document.getElementById('formHeaderTitle').textContent = `กำลังแก้ไขข้อมูล: ${rec.workOrder} (${rec.machine})`;
-            document.getElementById('formHeaderIcon').className = 'fa-solid fa-pen-to-square';
-            document.getElementById('btnSubmitText').textContent = 'อัปเดตการแก้ไขข้อมูล';
+            // เปลี่ยนหัวข้อฟอร์ม
+            document.getElementById('formHeaderTitle').textContent = `แก้ไขรายการ: ${record.workOrder}`;
+            document.getElementById('btnSubmitText').textContent = 'บันทึกการแก้ไขข้อมูล';
             document.getElementById('btnCancelEdit').classList.remove('hidden');
 
-            document.getElementById('recordFormCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
-            showToast(`โหลดข้อมูล ${rec.workOrder} ขึ้นฟอร์มแก้ไขแล้ว`, 'info');
+            switchTab('record');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function resetFormToNewMode() {
-            document.getElementById('defectForm').reset();
+            const form = document.getElementById('defectForm');
+            if (form) form.reset();
+
             document.getElementById('editRecordId').value = '';
             document.getElementById('inputDate').value = getTodayISO();
-            document.getElementById('inputUnit').value = 'แผ่น';
-
             document.getElementById('formHeaderTitle').textContent = 'บันทึกแจ้งปัญหาระหว่างการผลิต (ใหม่)';
-            document.getElementById('formHeaderIcon').className = 'fa-solid fa-file-pen';
             document.getElementById('btnSubmitText').textContent = 'บันทึกข้อมูลเข้าระบบ';
             document.getElementById('btnCancelEdit').classList.add('hidden');
+            handleCorrectiveActionChange('');
         }
 
-        // ระบบยืนยันการลบข้อมูลด้วย Modal (ไม่ใช้ confirm/alert)
-        let pendingDeleteAction = null;
-
+        let currentDeleteId = null;
         function promptDeleteRecord(id) {
-            const rec = allRecords.find(r => r.id === id);
-            if (!rec) return;
-
-            document.getElementById('modalConfirmTitle').textContent = 'ยืนยันการลบรายการปัญหา';
-            document.getElementById('modalConfirmMessage').innerHTML = 
-                `ต้องการลบรายการใบสั่งผลิต <strong>${rec.workOrder}</strong> (เครื่อง <strong>${rec.machine}</strong> - ${rec.defect}) ใช่หรือไม่?`;
+            currentDeleteId = id;
+            const modal = document.getElementById('deleteConfirmModal');
+            if (modal) modal.classList.remove('hidden');
             
-            pendingDeleteAction = () => {
-                allRecords = allRecords.filter(r => r.id !== id);
-                saveRecordsToStorage();
-                refreshAllViews();
-                sendToGoogleSheet('delete', { id: id });
-                if (document.getElementById('editRecordId').value === id) {
-                    resetFormToNewMode();
-                }
-                showToast('ลบรายการข้อมูลเรียบร้อยแล้ว', 'success');
-                closeConfirmModal();
-            };
-
-            document.getElementById('btnConfirmDeleteAction').onclick = pendingDeleteAction;
-            document.getElementById('deleteConfirmModal').classList.remove('hidden');
-        }
-
-        function confirmClearAllData() {
-            document.getElementById('modalConfirmTitle').textContent = 'ยืนยันการล้างข้อมูลทั้งหมด';
-            document.getElementById('modalConfirmMessage').textContent = 'คุณต้องการล้างข้อมูลในหน้าเว็บทั้งหมดใช่หรือไม่? (ข้อมูลใน Google Sheet จะไม่ถูกลบ)';
-            
-            document.getElementById('btnConfirmDeleteAction').onclick = () => {
-                allRecords = [];
-                saveRecordsToStorage();
-                refreshAllViews();
-                showToast('ล้างข้อมูลในเครื่องเรียบร้อยแล้ว', 'info');
-                closeConfirmModal();
-            };
-            document.getElementById('deleteConfirmModal').classList.remove('hidden');
+            const confirmBtn = document.getElementById('btnConfirmDeleteAction');
+            if (confirmBtn) {
+                confirmBtn.onclick = function() {
+                    executeDeleteRecord(currentDeleteId);
+                };
+            }
         }
 
         function closeConfirmModal() {
-            document.getElementById('deleteConfirmModal').classList.add('hidden');
+            const modal = document.getElementById('deleteConfirmModal');
+            if (modal) modal.classList.add('hidden');
+            currentDeleteId = null;
         }
 
-        // =========================================================================
-        // 7. การแสดงผลตารางและแดชบอร์ด (DASHBOARD KPIs, CHARTS & TABLES)
-        // =========================================================================
+        function executeDeleteRecord(id) {
+            allRecords = allRecords.filter(r => String(r.id) !== String(id));
+            saveRecordsToStorage();
+            refreshAllViews();
+            closeConfirmModal();
+            sendToGoogleSheet('delete', { id: id });
+            showToast('ลบรายการปัญหาออกจากระบบเรียบร้อยแล้ว', 'success');
+        }
+
+        function confirmClearAllData() {
+            currentDeleteId = 'ALL';
+            const modal = document.getElementById('deleteConfirmModal');
+            document.getElementById('modalConfirmTitle').textContent = 'ยืนยันการล้างข้อมูลทั้งหมด';
+            document.getElementById('modalConfirmMessage').textContent = 'คุณต้องการลบข้อมูลทั้งหมดในเครื่องนี้ใช่หรือไม่? การกระทำนี้ไม่สามารถย้อนกลับได้';
+            if (modal) modal.classList.remove('hidden');
+
+            const confirmBtn = document.getElementById('btnConfirmDeleteAction');
+            if (confirmBtn) {
+                confirmBtn.onclick = function() {
+                    allRecords = [];
+                    saveRecordsToStorage();
+                    refreshAllViews();
+                    closeConfirmModal();
+                    showToast('ล้างข้อมูลทั้งหมดในเครื่องเรียบร้อยแล้ว', 'info');
+                };
+            }
+        }
+
         function refreshAllViews() {
-            document.getElementById('badgeTotalRecords').textContent = allRecords.length;
+            saveRecordsToStorage();
+            populateFilterDropdowns();
             applyDashboardFilters();
             renderAllRecordsTable();
         }
 
+        function populateFilterDropdowns() {
+            const machineSet = new Set();
+            allRecords.forEach(r => { if (r.machine) machineSet.add(r.machine); });
+            const machineSelect = document.getElementById('filterMachine');
+            if (machineSelect) {
+                const current = machineSelect.value;
+                machineSelect.innerHTML = '<option value="ALL">ทุกเครื่องจักร (ทั้งหมด)</option>' +
+                    Array.from(machineSet).sort().map(m => `<option value="${m}">${m}</option>`).join('');
+                machineSelect.value = current;
+            }
+        }
+
         function applyDashboardFilters() {
-            const startDate = document.getElementById('filterStartDate').value;
-            const endDate = document.getElementById('filterEndDate').value;
-            const dept = document.getElementById('filterDepartment').value;
-            const machine = document.getElementById('filterMachine').value;
+            const monthVal = document.getElementById('filterMonth')?.value || 'ALL';
+            const yearVal = document.getElementById('filterYear')?.value || 'ALL';
+            const startDate = document.getElementById('filterStartDate')?.value || '';
+            const endDate = document.getElementById('filterEndDate')?.value || '';
+            const deptVal = document.getElementById('filterDepartment')?.value || 'ALL';
+            const machineVal = document.getElementById('filterMachine')?.value || 'ALL';
 
             const filtered = allRecords.filter(item => {
+                if (!item.date) return false;
+                const parts = item.date.split('-');
+                const itemYear = parts[0];
+                const itemMonth = parts[1];
+
+                if (monthVal !== 'ALL' && itemMonth !== monthVal) return false;
+                if (yearVal !== 'ALL' && itemYear !== yearVal) return false;
                 if (startDate && item.date < startDate) return false;
                 if (endDate && item.date > endDate) return false;
-                if (dept !== 'ALL' && item.department !== dept) return false;
-                if (machine !== 'ALL' && item.machine !== machine) return false;
+                if (deptVal !== 'ALL' && item.department !== deptVal) return false;
+                if (machineVal !== 'ALL' && item.machine !== machineVal) return false;
                 return true;
             });
 
@@ -1404,21 +1469,20 @@ function formatDateValue(val) {
         }
 
         function resetDashboardFilters() {
-            document.getElementById('filterStartDate').value = '';
-            document.getElementById('filterEndDate').value = '';
-            document.getElementById('filterDepartment').value = 'ALL';
-            document.getElementById('filterMachine').value = 'ALL';
+            const m = document.getElementById('filterMonth'); if (m) m.value = 'ALL';
+            const y = document.getElementById('filterYear'); if (y) y.value = 'ALL';
+            const s = document.getElementById('filterStartDate'); if (s) s.value = '';
+            const e = document.getElementById('filterEndDate'); if (e) e.value = '';
+            const d = document.getElementById('filterDepartment'); if (d) d.value = 'ALL';
+            const mc = document.getElementById('filterMachine'); if (mc) mc.value = 'ALL';
             applyDashboardFilters();
-            showToast('รีเซ็ตตัวกรองข้อมูลแล้ว', 'info');
+            showToast('ล้างตัวกรองทั้งหมดแล้ว', 'info');
         }
 
         function updateDashboardKPIs(data) {
             const totalEvents = data.length;
             let totalSheets = 0;
             let totalPieces = 0;
-
-            const deptCounts = {};
-            const machineCounts = {};
 
             data.forEach(item => {
                 const qty = Number(item.quantity) || 0;
@@ -1427,78 +1491,92 @@ function formatDateValue(val) {
                 } else {
                     totalSheets += qty;
                 }
-
-                deptCounts[item.department] = (deptCounts[item.department] || 0) + 1;
-                machineCounts[item.machine] = (machineCounts[item.machine] || 0) + 1;
             });
 
-            document.getElementById('kpiTotalEvents').textContent = totalEvents.toLocaleString();
-            document.getElementById('kpiTotalSheets').textContent = totalSheets.toLocaleString();
-            document.getElementById('kpiTotalPieces').textContent = totalPieces.toLocaleString();
-            document.getElementById('chartUnitSheetBadge').textContent = `แผ่น: ${totalSheets.toLocaleString()}`;
-            document.getElementById('chartUnitPieceBadge').textContent = `ชิ้น: ${totalPieces.toLocaleString()}`;
+            const kpiEventsEl = document.getElementById('kpiTotalEvents');
+            const kpiSheetsEl = document.getElementById('kpiTotalSheets');
+            const kpiPiecesEl = document.getElementById('kpiTotalPieces');
+            const kpiTopDeptEl = document.getElementById('kpiTopDept');
+            const kpiTopDeptCountEl = document.getElementById('kpiTopDeptCount');
+            const kpiTopMachineEl = document.getElementById('kpiTopMachine');
+            const kpiTopMachineCountEl = document.getElementById('kpiTopMachineCount');
+            const sheetBadgeEl = document.getElementById('chartUnitSheetBadge');
+            const pieceBadgeEl = document.getElementById('chartUnitPieceBadge');
 
-            // หาแผนกที่พบปัญหาสูงสุด
-            const topDeptEntry = Object.entries(deptCounts).sort((a, b) => b[1] - a[1])[0];
-            if (topDeptEntry) {
-                const pct = Math.round((topDeptEntry[1] / totalEvents) * 100);
-                document.getElementById('kpiTopDept').textContent = topDeptEntry[0];
-                document.getElementById('kpiTopDeptCount').textContent = `${topDeptEntry[1]} ครั้ง (${pct}%)`;
-            } else {
-                document.getElementById('kpiTopDept').textContent = '-';
-                document.getElementById('kpiTopDeptCount').textContent = '0 ครั้ง (0%)';
-            }
+            if (kpiEventsEl) kpiEventsEl.textContent = totalEvents.toLocaleString();
+            if (kpiSheetsEl) kpiSheetsEl.textContent = totalSheets.toLocaleString();
+            if (kpiPiecesEl) kpiPiecesEl.textContent = totalPieces.toLocaleString();
+            if (sheetBadgeEl) sheetBadgeEl.textContent = `แผ่น: ${totalSheets.toLocaleString()}`;
+            if (pieceBadgeEl) pieceBadgeEl.textContent = `ชิ้น: ${totalPieces.toLocaleString()}`;
 
-            // หาเครื่องจักรที่พบปัญหาสูงสุด
-            const topMachineEntry = Object.entries(machineCounts).sort((a, b) => b[1] - a[1])[0];
-            if (topMachineEntry) {
-                document.getElementById('kpiTopMachine').textContent = `เครื่อง ${topMachineEntry[0]}`;
-                document.getElementById('kpiTopMachineCount').textContent = `พบปัญหา ${topMachineEntry[1]} ครั้ง`;
-            } else {
-                document.getElementById('kpiTopMachine').textContent = '-';
-                document.getElementById('kpiTopMachineCount').textContent = '0 ครั้ง';
-            }
+            const deptMap = {};
+            const machineMap = {};
+            data.forEach(item => {
+                deptMap[item.department] = (deptMap[item.department] || 0) + 1;
+                machineMap[item.machine] = (machineMap[item.machine] || 0) + 1;
+            });
+
+            let topDept = '-';
+            let topDeptCount = 0;
+            Object.entries(deptMap).forEach(([dept, count]) => {
+                if (count > topDeptCount) {
+                    topDeptCount = count;
+                    topDept = dept;
+                }
+            });
+            const topDeptPct = totalEvents > 0 ? ((topDeptCount / totalEvents) * 100).toFixed(1) : 0;
+            if (kpiTopDeptEl) kpiTopDeptEl.textContent = topDept;
+            if (kpiTopDeptCountEl) kpiTopDeptCountEl.textContent = `${topDeptCount} ครั้ง (${topDeptPct}%)`;
+
+            let topMachine = '-';
+            let topMachineCount = 0;
+            Object.entries(machineMap).forEach(([mc, count]) => {
+                if (count > topMachineCount) {
+                    topMachineCount = count;
+                    topMachine = mc;
+                }
+            });
+            if (kpiTopMachineEl) kpiTopMachineEl.textContent = topMachine !== '-' ? `เครื่อง ${topMachine}` : '-';
+            if (kpiTopMachineCountEl) kpiTopMachineCountEl.textContent = `${topMachineCount} ครั้ง`;
         }
 
         function updateDashboardCharts(data) {
-            // --- 1. กราฟแยกตามแผนก (สีแยกตามแต่ละแผนกชัดเจน) ---
-            const deptLabels = DEPARTMENTS;
-            const deptValues = deptLabels.map(d => data.filter(item => item.department === d).length);
-            const deptColors = deptLabels.map(d => DEPARTMENT_COLORS[d] || '#1D4ED8');
+            // 1. กราฟแผนก
+            const departmentMap = {};
+            data.forEach(item => {
+                departmentMap[item.department] = (departmentMap[item.department] || 0) + 1;
+            });
+            const deptLabels = Object.keys(departmentMap);
+            const deptValues = Object.values(departmentMap);
+            const deptBarColors = deptLabels.map(d => DEPARTMENT_COLORS[d] || '#1D4ED8');
 
             if (chartInstances.dept) chartInstances.dept.destroy();
-            chartInstances.dept = new Chart(document.getElementById('deptChart'), {
-                type: 'bar',
-                data: {
-                    labels: deptLabels,
-                    datasets: [{
-                        label: 'จำนวนครั้งที่พบปัญหา',
-                        data: deptValues,
-                        backgroundColor: deptColors,
-                        borderRadius: 8,
-                        borderWidth: 1,
-                        borderColor: '#FFFFFF'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                label: ctx => ` พบปัญหา: ${ctx.raw} ครั้ง`
-                            }
-                        }
+            const deptCtx = document.getElementById('deptChart');
+            if (deptCtx) {
+                chartInstances.dept = new Chart(deptCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: deptLabels,
+                        datasets: [{
+                            label: 'จำนวนครั้งที่พบปัญหา',
+                            data: deptValues,
+                            backgroundColor: deptBarColors,
+                            borderRadius: 6
+                        }]
                     },
-                    scales: {
-                        y: { beginAtZero: true, ticks: { stepSize: 1, font: { family: 'Prompt' } }, grid: { color: '#F1F5F9' } },
-                        x: { ticks: { font: { family: 'Prompt', size: 11 } }, grid: { display: false } }
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, ticks: { stepSize: 1, font: { family: 'Prompt' } }, grid: { color: '#F1F5F9' } },
+                            x: { ticks: { font: { family: 'Prompt', size: 11 } }, grid: { display: false } }
+                        }
                     }
-                }
-            });
+                });
+            }
 
-            // --- 2. กราฟ Top 10 ปัญหาที่พบบ่อย (แต่ละแท่งสีแยกตามชนิดของปัญหา) ---
+            // 2. กราฟ Top 10 Defect
             const defectMap = {};
             data.forEach(item => {
                 defectMap[item.defect] = (defectMap[item.defect] || 0) + 1;
@@ -1509,32 +1587,33 @@ function formatDateValue(val) {
             const defectBarColors = defectLabels.map((_, idx) => MULTI_COLOR_PALETTE[idx % MULTI_COLOR_PALETTE.length]);
 
             if (chartInstances.defect) chartInstances.defect.destroy();
-            chartInstances.defect = new Chart(document.getElementById('defectChart'), {
-                type: 'bar',
-                data: {
-                    labels: defectLabels,
-                    datasets: [{
-                        label: 'จำนวนครั้งที่พบ',
-                        data: defectValues,
-                        backgroundColor: defectBarColors,
-                        borderRadius: 6
-                    }]
-                },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
+            const defectCtx = document.getElementById('defectChart');
+            if (defectCtx) {
+                chartInstances.defect = new Chart(defectCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: defectLabels,
+                        datasets: [{
+                            label: 'จำนวนครั้งที่พบ',
+                            data: defectValues,
+                            backgroundColor: defectBarColors,
+                            borderRadius: 6
+                        }]
                     },
-                    scales: {
-                        x: { beginAtZero: true, ticks: { stepSize: 1, font: { family: 'Prompt' } }, grid: { color: '#F1F5F9' } },
-                        y: { ticks: { font: { family: 'Prompt', size: 11 } }, grid: { display: false } }
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { beginAtZero: true, ticks: { stepSize: 1, font: { family: 'Prompt' } }, grid: { color: '#F1F5F9' } },
+                            y: { ticks: { font: { family: 'Prompt', size: 11 } }, grid: { display: false } }
+                        }
                     }
-                }
-            });
+                });
+            }
 
-            // --- 3. กราฟแยกตามเครื่องจักร Top 12 (แต่ละแท่งสีแยกตามแต่ละเครื่อง) ---
+            // 3. กราฟเครื่องจักร
             const machineMap = {};
             data.forEach(item => {
                 machineMap[item.machine] = (machineMap[item.machine] || 0) + 1;
@@ -1545,31 +1624,32 @@ function formatDateValue(val) {
             const machineColors = machineLabels.map((_, idx) => MULTI_COLOR_PALETTE[(idx + 2) % MULTI_COLOR_PALETTE.length]);
 
             if (chartInstances.machine) chartInstances.machine.destroy();
-            chartInstances.machine = new Chart(document.getElementById('machineChart'), {
-                type: 'bar',
-                data: {
-                    labels: machineLabels,
-                    datasets: [{
-                        label: 'จำนวนครั้งที่พบปัญหา',
-                        data: machineValues,
-                        backgroundColor: machineColors,
-                        borderRadius: 8
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
+            const machineCtx = document.getElementById('machineChart');
+            if (machineCtx) {
+                chartInstances.machine = new Chart(machineCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: machineLabels,
+                        datasets: [{
+                            label: 'จำนวนครั้งที่พบปัญหา',
+                            data: machineValues,
+                            backgroundColor: machineColors,
+                            borderRadius: 8
+                        }]
                     },
-                    scales: {
-                        y: { beginAtZero: true, ticks: { stepSize: 1, font: { family: 'Prompt' } }, grid: { color: '#F1F5F9' } },
-                        x: { ticks: { font: { family: 'Prompt', size: 11 } }, grid: { display: false } }
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, ticks: { stepSize: 1, font: { family: 'Prompt' } }, grid: { color: '#F1F5F9' } },
+                            x: { ticks: { font: { family: 'Prompt', size: 11 } }, grid: { display: false } }
+                        }
                     }
-                }
-            });
+                });
+            }
 
-            // --- 4. กราฟแนวโน้มรายวัน (แยกสีจุดและเส้นโทนฟ้า-ทอง) ---
+            // 4. กราฟแนวโน้มรายวัน
             const dateMap = {};
             data.forEach(item => {
                 dateMap[item.date] = (dateMap[item.date] || 0) + 1;
@@ -1579,36 +1659,74 @@ function formatDateValue(val) {
             const trendValues = sortedDates.map(d => dateMap[d]);
 
             if (chartInstances.trend) chartInstances.trend.destroy();
-            chartInstances.trend = new Chart(document.getElementById('trendChart'), {
-                type: 'line',
-                data: {
-                    labels: trendLabels,
-                    datasets: [{
-                        label: 'จำนวนครั้งที่พบปัญหารายวัน',
-                        data: trendValues,
-                        borderColor: '#1E3A8A',
-                        backgroundColor: 'rgba(212, 175, 55, 0.22)',
-                        pointBackgroundColor: '#D4AF37',
-                        pointBorderColor: '#0F2544',
-                        pointRadius: 5,
-                        pointHoverRadius: 7,
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.35
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
+            const trendCtx = document.getElementById('trendChart');
+            if (trendCtx) {
+                chartInstances.trend = new Chart(trendCtx, {
+                    type: 'line',
+                    data: {
+                        labels: trendLabels,
+                        datasets: [{
+                            label: 'จำนวนครั้งที่พบปัญหารายวัน',
+                            data: trendValues,
+                            borderColor: '#1E3A8A',
+                            backgroundColor: 'rgba(212, 175, 55, 0.22)',
+                            pointBackgroundColor: '#D4AF37',
+                            pointBorderColor: '#0F2544',
+                            pointRadius: 5,
+                            pointHoverRadius: 7,
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.35
+                        }]
                     },
-                    scales: {
-                        y: { beginAtZero: true, ticks: { stepSize: 1, font: { family: 'Prompt' } }, grid: { color: '#F1F5F9' } },
-                        x: { ticks: { font: { family: 'Prompt', size: 11 } }, grid: { display: false } }
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, ticks: { stepSize: 1, font: { family: 'Prompt' } }, grid: { color: '#F1F5F9' } },
+                            x: { ticks: { font: { family: 'Prompt', size: 11 } }, grid: { display: false } }
+                        }
                     }
-                }
+                });
+            }
+
+            // 5. กราฟสถิติ QA ผู้แจ้ง
+            const qaMap = {};
+            data.forEach(item => {
+                const qa = item.qaName ? item.qaName.trim() : 'ไม่ระบุชื่อ QA';
+                qaMap[qa] = (qaMap[qa] || 0) + 1;
             });
+            const sortedQa = Object.entries(qaMap).sort((a, b) => b[1] - a[1]);
+            const qaLabels = sortedQa.map(e => e[0]);
+            const qaValues = sortedQa.map(e => e[1]);
+            const qaColors = qaLabels.map((_, idx) => MULTI_COLOR_PALETTE[(idx + 4) % MULTI_COLOR_PALETTE.length]);
+
+            if (chartInstances.qa) chartInstances.qa.destroy();
+            const qaCtx = document.getElementById('qaChart');
+            if (qaCtx) {
+                chartInstances.qa = new Chart(qaCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: qaLabels,
+                        datasets: [{
+                            label: 'จำนวนรายการที่ตรวจพบ',
+                            data: qaValues,
+                            backgroundColor: qaColors,
+                            borderRadius: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, ticks: { stepSize: 1, font: { family: 'Prompt' } }, grid: { color: '#F1F5F9' } },
+                            x: { ticks: { font: { family: 'Prompt', size: 11 } }, grid: { display: false } }
+                        }
+                    }
+                });
+            }
         }
 
         function formatThaiShortDate(isoDate) {
@@ -1631,6 +1749,7 @@ function formatDateValue(val) {
 
         function renderRecentIssuesTable(items) {
             const tbody = document.getElementById('recentIssuesTableBody');
+            if (!tbody) return;
             if (items.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="8" class="py-8 text-center text-slate-400">ไม่พบข้อมูลปัญหาในช่วงตัวกรองที่เลือก</td></tr>`;
                 return;
@@ -1644,8 +1763,14 @@ function formatDateValue(val) {
                     <td class="py-3 px-4 whitespace-nowrap font-semibold text-navy-900">
                         <span class="px-2 py-0.5 rounded bg-slate-100 border border-slate-200">${item.machine}</span>
                     </td>
-                    <td class="py-3 px-4 whitespace-nowrap text-slate-600">${item.operator}</td>
-                    <td class="py-3 px-4 font-medium text-red-700">${item.defect}</td>
+                    <td class="py-3 px-4 whitespace-nowrap text-slate-600">
+                        <div>หัวหน้า: ${item.operator}</div>
+                        <div class="text-[11px] text-royal-700">QA: ${item.qaName || '-'}</div>
+                    </td>
+                    <td class="py-3 px-4 font-medium text-red-700">
+                        <div>${item.defect}</div>
+                        <div class="text-[11px] font-semibold text-amber-700">มาตรการ: ${item.correctiveAction || '-'}${item.correctiveAction === 'แก้ไขไม่ได้ยกงานลง' && item.cancelReason ? ` (${item.cancelReason})` : ''}</div>
+                    </td>
                     <td class="py-3 px-4 whitespace-nowrap text-right font-bold text-navy-900">
                         ${Number(item.quantity).toLocaleString()} 
                         <span class="text-xs font-semibold px-1.5 py-0.5 rounded ${item.unit === 'แผ่น' ? 'bg-blue-100 text-royal-800' : 'bg-amber-100 text-amber-800'}">${item.unit}</span>
@@ -1661,19 +1786,22 @@ function formatDateValue(val) {
         }
 
         function renderAllRecordsTable() {
-            const keyword = document.getElementById('tableSearchInput').value.trim().toLowerCase();
-            const deptFilter = document.getElementById('tableFilterDept').value;
+            const searchInput = document.getElementById('tableSearchInput');
+            const deptFilterSelect = document.getElementById('tableFilterDept');
+            const keyword = searchInput ? searchInput.value.trim().toLowerCase() : '';
+            const deptFilter = deptFilterSelect ? deptFilterSelect.value : 'ALL';
 
             const filtered = allRecords.filter(item => {
                 if (deptFilter !== 'ALL' && item.department !== deptFilter) return false;
                 if (keyword) {
-                    const hay = `${item.workOrder} ${item.department} ${item.machine} ${item.operator} ${item.defect} ${item.date}`.toLowerCase();
+                    const hay = `${item.workOrder} ${item.department} ${item.machine} ${item.operator} ${item.qaName} ${item.defect} ${item.correctiveAction} ${item.cancelReason} ${item.date}`.toLowerCase();
                     if (!hay.includes(keyword)) return false;
                 }
                 return true;
             });
 
             const tbody = document.getElementById('allRecordsTableBody');
+            if (!tbody) return;
             if (filtered.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="9" class="py-10 text-center text-slate-400">ไม่พบรายการข้อมูลที่ตรงกับการค้นหา</td></tr>`;
                 return;
@@ -1686,8 +1814,14 @@ function formatDateValue(val) {
                     <td class="py-3 px-4 whitespace-nowrap font-bold text-royal-800">${item.workOrder}</td>
                     <td class="py-3 px-4 whitespace-nowrap">${getDeptBadgeHTML(item.department)}</td>
                     <td class="py-3 px-4 whitespace-nowrap font-semibold text-navy-900">${item.machine}</td>
-                    <td class="py-3 px-4 whitespace-nowrap text-slate-600">${item.operator}</td>
-                    <td class="py-3 px-4 font-medium text-red-700">${item.defect}</td>
+                    <td class="py-3 px-4 whitespace-nowrap text-slate-600">
+                        <div>หัวหน้า: ${item.operator}</div>
+                        <div class="text-[11px] text-royal-700">QA: ${item.qaName || '-'}</div>
+                    </td>
+                    <td class="py-3 px-4 font-medium text-red-700">
+                        <div>${item.defect}</div>
+                        <div class="text-[11px] font-semibold text-amber-700">มาตรการ: ${item.correctiveAction || '-'}${item.correctiveAction === 'แก้ไขไม่ได้ยกงานลง' && item.cancelReason ? ` (${item.cancelReason})` : ''}</div>
+                    </td>
                     <td class="py-3 px-4 whitespace-nowrap text-right font-bold text-navy-900">
                         ${Number(item.quantity).toLocaleString()}
                         <span class="ml-1 text-xs font-semibold px-2 py-0.5 rounded ${item.unit === 'แผ่น' ? 'bg-blue-100 text-royal-800' : 'bg-amber-100 text-amber-800'}">${item.unit}</span>
@@ -1706,15 +1840,10 @@ function formatDateValue(val) {
             `).join('');
         }
 
-        // ส่งออกข้อมูลเป็นไฟล์ CSV (รองรับภาษาไทยใน Excel ด้วย UTF-8 BOM)
         function exportToCSV() {
-            if (allRecords.length === 0) {
-                showToast('ไม่มีข้อมูลสำหรับส่งออก', 'warning');
-                return;
-            }
-            const headers = ['ID', 'วันที่แจ้ง', 'เลขที่ใบสั่งผลิต', 'แผนก', 'เครื่องจักร', 'หัวหน้าเครื่อง', 'ปัญหาที่พบ', 'จำนวนที่พบ', 'หน่วยนับ'];
+            const headers = ['ID', 'วันที่แจ้ง', 'เลขที่ใบสั่งผลิต', 'แผนก', 'เครื่องจักร', 'หัวหน้าเครื่อง', 'ชื่อ QA', 'ปัญหาที่พบ', 'จำนวน', 'หน่วย', 'มาตรการแก้ไข', 'สาเหตุยกงานลง'];
             const rows = allRecords.map(r => [
-                r.id, r.date, r.workOrder, r.department, r.machine, r.operator, r.defect, r.quantity, r.unit
+                r.id, r.date, r.workOrder, r.department, r.machine, r.operator, r.qaName || '', r.defect, r.quantity, r.unit, r.correctiveAction || '', r.cancelReason || ''
             ].map(val => `"${String(val).replace(/"/g, '""')}"`).join(','));
 
             const csvContent = '\uFEFF' + [headers.join(','), ...rows].join('\n');
@@ -1728,9 +1857,6 @@ function formatDateValue(val) {
             showToast('ดาวน์โหลดไฟล์รายงาน CSV เรียบร้อยแล้ว', 'success');
         }
 
-        // =========================================================================
-        // 8. การเชื่อมต่อ GOOGLE SHEET & APPS SCRIPT REAL-TIME SYNC
-        // =========================================================================
         function loadSettings() {
             const saved = localStorage.getItem(STORAGE_KEY_SETTINGS);
             if (saved) {
@@ -1738,16 +1864,22 @@ function formatDateValue(val) {
                     sheetSettings = { ...sheetSettings, ...JSON.parse(saved) };
                 } catch (e) {}
             }
-            document.getElementById('settingScriptUrl').value = sheetSettings.scriptUrl || '';
-            document.getElementById('settingSheetName').value = sheetSettings.sheetName || 'WG6_Defects';
-            document.getElementById('settingAutoSync').checked = sheetSettings.autoSync !== false;
+            const urlInput = document.getElementById('settingScriptUrl');
+            const nameInput = document.getElementById('settingSheetName');
+            const syncCheck = document.getElementById('settingAutoSync');
+            if (urlInput) urlInput.value = sheetSettings.scriptUrl || '';
+            if (nameInput) nameInput.value = sheetSettings.sheetName || 'WG6_Defects';
+            if (syncCheck) syncCheck.checked = sheetSettings.autoSync !== false;
             updateConnectionIndicator();
         }
 
         function saveSheetSettings() {
-            sheetSettings.scriptUrl = document.getElementById('settingScriptUrl').value.trim();
-            sheetSettings.sheetName = document.getElementById('settingSheetName').value.trim() || 'WG6_Defects';
-            sheetSettings.autoSync = document.getElementById('settingAutoSync').checked;
+            const urlInput = document.getElementById('settingScriptUrl');
+            const nameInput = document.getElementById('settingSheetName');
+            const syncCheck = document.getElementById('settingAutoSync');
+            if (urlInput) sheetSettings.scriptUrl = urlInput.value.trim();
+            if (nameInput) sheetSettings.sheetName = nameInput.value.trim() || 'WG6_Defects';
+            if (syncCheck) sheetSettings.autoSync = syncCheck.checked;
 
             localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(sheetSettings));
             updateConnectionIndicator();
@@ -1760,7 +1892,8 @@ function formatDateValue(val) {
         }
 
         function toggleAutoSync() {
-            sheetSettings.autoSync = document.getElementById('settingAutoSync').checked;
+            const syncCheck = document.getElementById('settingAutoSync');
+            if (syncCheck) sheetSettings.autoSync = syncCheck.checked;
             localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(sheetSettings));
             setupAutoSyncTimer();
             showToast(sheetSettings.autoSync ? 'เปิดใช้งาน Auto-Sync เรียลไทม์แล้ว' : 'ปิด Auto-Sync ชั่วคราว', 'info');
@@ -1771,13 +1904,14 @@ function formatDateValue(val) {
             if (sheetSettings.autoSync && sheetSettings.scriptUrl) {
                 autoSyncIntervalId = setInterval(() => {
                     fetchFromGoogleSheet(true);
-                }, 15000); // ดึงข้อมูลทุก 15 วินาที
+                }, 15000);
             }
         }
 
         function updateConnectionIndicator() {
             const badge = document.getElementById('sheetConnectedBadge');
             const box = document.getElementById('connectionStatusBox');
+            if (!badge || !box) return;
             if (sheetSettings.scriptUrl) {
                 badge.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#34D399]';
                 box.className = 'p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800';
@@ -1791,22 +1925,23 @@ function formatDateValue(val) {
 
         function updateLastSyncBadge() {
             const nowStr = new Date().toLocaleTimeString('th-TH', { hour12: false });
-            document.getElementById('lastSyncTimeText').textContent = `อัปเดตล่าสุด: ${nowStr} น.`;
+            const syncEl = document.getElementById('lastSyncTimeText');
+            if (syncEl) syncEl.textContent = `อัปเดตล่าสุด: ${nowStr} น.`;
         }
 
         function manualSyncNow() {
             const icon = document.getElementById('syncIcon');
-            icon.classList.add('fa-spin');
+            if (icon) icon.classList.add('fa-spin');
             updateLastSyncBadge();
 
             if (sheetSettings.scriptUrl) {
                 fetchFromGoogleSheet(false).finally(() => {
-                    setTimeout(() => icon.classList.remove('fa-spin'), 600);
+                    setTimeout(() => { if (icon) icon.classList.remove('fa-spin'); }, 600);
                 });
             } else {
                 refreshAllViews();
                 setTimeout(() => {
-                    icon.classList.remove('fa-spin');
+                    if (icon) icon.classList.remove('fa-spin');
                     showToast('อัปเดตข้อมูลบนแดชบอร์ดเรียลไทม์เรียบร้อย', 'success');
                 }, 500);
             }
@@ -1821,7 +1956,6 @@ function formatDateValue(val) {
             fetchFromGoogleSheet(false);
         }
 
-        // ดึงข้อมูลจาก Google Sheet (GET)
         async function fetchFromGoogleSheet(silent = false) {
             if (!sheetSettings.scriptUrl) return;
             try {
@@ -1847,7 +1981,6 @@ function formatDateValue(val) {
             }
         }
 
-        // ส่งข้อมูลไปยัง Google Sheet (POST: create / update / delete)
         async function sendToGoogleSheet(action, recordData) {
             updateLastSyncBadge();
             if (!sheetSettings.scriptUrl) return;
@@ -1871,9 +2004,10 @@ function formatDateValue(val) {
             }
         }
 
-        // คัดลอกโค้ด Google Apps Script
         function copyAppsScriptCode() {
-            const codeText = document.getElementById('appsScriptCodeBlock').innerText;
+            const codeBlock = document.getElementById('appsScriptCodeBlock');
+            if (!codeBlock) return;
+            const codeText = codeBlock.innerText;
             const textarea = document.createElement('textarea');
             textarea.value = codeText;
             document.body.appendChild(textarea);
@@ -1882,16 +2016,13 @@ function formatDateValue(val) {
             document.body.removeChild(textarea);
 
             const btnText = document.getElementById('copyCodeBtnText');
-            btnText.textContent = 'คัดลอกสำเร็จ!';
+            if (btnText) btnText.textContent = 'คัดลอกสำเร็จ!';
             showToast('คัดลอกโค้ด Google Apps Script ลงคลิปบอร์ดแล้ว', 'success');
             setTimeout(() => {
-                btnText.textContent = 'คัดลอกโค้ด';
+                if (btnText) btnText.textContent = 'คัดลอกโค้ด';
             }, 2500);
         }
 
-        // =========================================================================
-        // 9. ระบบแจ้งเตือน TOAST NOTIFICATION
-        // =========================================================================
         function showToast(message, type = 'info') {
             const container = document.getElementById('toastContainer');
             if (!container) return;
@@ -1921,6 +2052,33 @@ function formatDateValue(val) {
                 toast.classList.add('translate-y-2', 'opacity-0');
                 setTimeout(() => toast.remove(), 300);
             }, 3200);
+        }
+
+        function loadCustomLogo() {
+            const savedLogo = localStorage.getItem(STORAGE_KEY_LOGO);
+            if (savedLogo) {
+                const imgEl = document.getElementById('companyLogoImg');
+                if (imgEl) imgEl.src = savedLogo;
+            }
+        }
+
+        function uploadCustomLogo(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64Str = e.target.result;
+                localStorage.setItem(STORAGE_KEY_LOGO, base64Str);
+                const imgEl = document.getElementById('companyLogoImg');
+                if (imgEl) imgEl.src = base64Str;
+                showToast('อัปเดตโลโก้เรียบร้อยแล้ว', 'success');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handleLogoError(img) {
+            img.onerror = null;
+            img.src = "https://placehold.co/112x74/0F2544/D4AF37?text=KIM+PAI";
         }
     </script>
 </body>
