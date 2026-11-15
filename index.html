@@ -55,6 +55,9 @@
             font-family: 'Prompt', sans-serif;
             background-color: #F0F5FA;
             color: #1E293B;
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
         }
 
         /* ตกแต่ง Scrollbar ให้เข้ากับธีมฟ้า-ทอง */
@@ -129,15 +132,14 @@
                 <!-- โลโก้ต้นฉบับ KIM PAI และหัวข้อหลัก -->
                 <div class="flex items-center gap-4">
                     <!-- กรอบแสดงโลโก้ต้นฉบับ 100% ไม่ดัดแปลง -->
-                    <div class="relative group bg-white/95 rounded-xl p-1 shadow-md border-2 border-gold-500 flex-shrink-0 overflow-hidden" style="width: 112px; height: 74px;" title="โลโก้ต้นฉบับ KIM PAI PRINTING & PACKAGING">
+                    <div class="relative group bg-white/95 rounded-xl p-1 shadow-md border-2 border-gold-500 flex-shrink-0 overflow-hidden cursor-pointer" style="width: 112px; height: 74px;" title="คลิกเพื่อเปลี่ยนรูปโลโก้" onclick="document.getElementById('logoUploadInput').click()">
                         <img id="companyLogoImg" src="KIMpai.jpg" alt="KIM PAI PRINTING & PACKAGING" 
                              class="w-full h-full object-contain"
                              onerror="handleLogoError(this)">
-                        <!-- ปุ่มอัปโหลดโลโก้สำรองเผื่อไฟล์รูปไม่ได้อยู่ในโฟลเดอร์เดียวกัน -->
-                        <label for="logoUploadInput" class="absolute inset-0 bg-navy-900/75 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-[10px] text-gold-300 cursor-pointer text-center px-1">
+                        <div class="absolute inset-0 bg-navy-900/75 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-[10px] text-gold-300 text-center px-1 pointer-events-none">
                             <i class="fa-solid fa-camera mb-0.5 text-xs"></i>
                             <span>เปลี่ยนรูปโลโก้</span>
-                        </label>
+                        </div>
                         <input type="file" id="logoUploadInput" accept="image/*" class="hidden" onchange="uploadCustomLogo(event)">
                     </div>
 
@@ -159,16 +161,16 @@
                 <!-- ส่วนแสดงสถานะ Real-time และนาฬิกา -->
                 <div class="flex flex-wrap items-center justify-between md:justify-end gap-3 bg-navy-950/60 px-3.5 py-2 rounded-xl border border-gold-500/30">
                     <div class="flex items-center gap-2">
-                        <div class="relative w-3 h-3 rounded-full bg-emerald-400 live-dot" id="liveIndicatorDot"></div>
-                        <div>
-                            <div class="text-xs font-semibold text-emerald-400 flex items-center gap-1.5" id="syncStatusText">
-                                <span>LIVE REAL-TIME</span>
-                            </div>
-                            <div class="text-[11px] text-blue-200" id="lastSyncTimeText">อัปเดตล่าสุด: กำลังโหลด...</div>
-                        </div>
+                        <button onclick="switchTab('settings')" id="tab-settings" title="ตั้งค่าเชื่อมต่อ Google Sheet & Apps Script"
+                                class="relative p-2 rounded-lg bg-navy-800 hover:bg-royal-700 text-gold-300 border border-gold-500/50 transition shadow active:scale-95">
+                            <i class="fa-solid fa-gear text-base"></i>
+                            <span id="sheetConnectedBadge" class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-amber-400 border border-navy-950" title="สถานะการเชื่อมต่อ Google Sheet"></span>
+                        </button>
                     </div>
+                </div>
+            </div>
 
-                    <div class="h-7 w-[1px] bg-slate-700 hidden sm:block"></div>
+            <!-- เมนูนำทางหลัก (Navigation Tabs) -->
 
                     <div class="text-right">
                         <div id="realtimeClock" class="text-sm font-bold text-gold-300 font-mono">00:00:00</div>
@@ -638,6 +640,8 @@
                                 <option value="คัด 100%">คัด 100%</option>
                                 <option value="อนุมัติส่งเฉพาะล็อต">อนุมัติส่งเฉพาะล็อต</option>
                                 <option value="รอสรุป">รอสรุป</option>
+                                <option value="แก้ไขงานหน้าเครื่องและผลิตต่อ">แก้ไขงานหน้าเครื่องและผลิตต่อ</option>
+                                <option value="แก้ไขปัญหาก่อนส่งแผนกถัดไป">แก้ไขปัญหาก่อนส่งแผนกถัดไป</option>
                                 <option value="แก้ไขไม่ได้ยกงานลง">แก้ไขไม่ได้ยกงานลง</option>
                             </select>
                         </div>
@@ -727,7 +731,7 @@
         <section id="view-settings" class="hidden space-y-6">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 
-                <!-- ฝั่งซ้าย: ฟอร์มตั้งค่าการเชื่อมต่อ Google Sheet -->
+                <!-- ฝั่งซ้าย: ฟอร์มตั้งค่าการเชื่อมต่อ Google Sheet และตั้งค่ารูปพื้นหลัง -->
                 <div class="lg:col-span-5 space-y-6">
                     <div class="bg-white rounded-2xl shadow-md border border-blue-100 p-6 gold-card-accent">
                         <div class="flex items-center gap-3 mb-4">
@@ -787,6 +791,31 @@
                                 <i class="fa-solid fa-circle-info text-royal-600 mr-1"></i>
                                 สถานะปัจจุบัน: <strong>ทำงานในโหมด Local Storage (พร้อมใช้งานทันที)</strong> หากใส่ URL ด้านบน ระบบจะซิงค์ขึ้น Google Sheet ให้อัตโนมัติ
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- ตั้งค่าภาพพื้นหลังเว็บไซต์ (Background Image) -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-blue-100 p-6 gold-card-accent">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-11 h-11 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-image"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-bold text-navy-900">ตั้งค่ารูปพื้นหลังเว็บไซต์</h2>
+                                <p class="text-xs text-slate-500">อัปโหลดรูปภาพเพื่อเปลี่ยนพื้นหลังแดชบอร์ดตามต้องการ</p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3">
+                            <label class="block w-full border-2 border-dashed border-slate-300 hover:border-gold-500 rounded-xl p-4 text-center cursor-pointer bg-slate-50 transition">
+                                <i class="fa-solid fa-cloud-arrow-up text-2xl text-royal-700 mb-1"></i>
+                                <span class="text-xs font-bold text-navy-900 block">คลิกเพื่ออัปโหลดภาพพื้นหลังใหม่</span>
+                                <span class="text-[11px] text-slate-500">(รองรับไฟล์ JPG, PNG)</span>
+                                <input type="file" accept="image/*" class="hidden" onchange="uploadCustomBackground(event)">
+                            </label>
+                            <button onclick="resetCustomBackground()" class="w-full py-2 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs font-semibold transition">
+                                <i class="fa-solid fa-rotate-left mr-1"></i>คืนค่าพื้นหลังเริ่มต้น
+                            </button>
                         </div>
                     </div>
 
@@ -1093,6 +1122,7 @@ function formatDateValue(val) {
         const STORAGE_KEY_RECORDS = 'wg6_production_defects_v1';
         const STORAGE_KEY_SETTINGS = 'wg6_sheet_settings_v1';
         const STORAGE_KEY_LOGO = 'wg6_custom_logo_v1';
+        const STORAGE_KEY_BG = 'wg6_custom_bg_v1';
 
         let allRecords = [];
         let sheetSettings = {
@@ -1113,6 +1143,7 @@ function formatDateValue(val) {
         window.onload = function() {
             loadSettings();
             loadCustomLogo();
+            loadCustomBackground();
             initDropdowns();
             loadRecordsFromStorage();
             initClock();
@@ -1178,13 +1209,14 @@ function formatDateValue(val) {
                 { id: 'WG6-1005', date: getISODateOffset(-3), workOrder: 'WO-2611-0071', department: 'พิมพ์', machine: '2103', operator: 'คุณสมชาย พิมพ์ดี', qaName: 'คุณมนัส QA', defect: 'จุดขาว', quantity: 120, unit: 'แผ่น', correctiveAction: 'คัด 100%', cancelReason: 'ทำความสะอาดลูกยางแล้วคัดใหม่' },
                 { id: 'WG6-1006', date: getISODateOffset(-1), workOrder: 'WO-2611-0110', department: 'แกะ', machine: 'แผนกแกะ', operator: 'คุณสมศรี แกะงาน', qaName: 'คุณสุดารัตน์ QA', defect: 'งานโค่น', quantity: 300, unit: 'ชิ้น', correctiveAction: 'คัด 100%', cancelReason: 'คัดแยกชิ้นงานที่โค่นออก' },
                 { id: 'WG6-1007', date: getISODateOffset(-2), workOrder: 'WO-2611-0115', department: 'ปั๊ม', machine: '4101', operator: 'คุณชาญชัย ปั๊มนูน', qaName: 'คุณอภิชาติ QA', defect: 'ปั๊มนูนไม่ได้มาตรฐาน', quantity: 95, unit: 'แผ่น', correctiveAction: 'อนุมัติส่งเฉพาะล็อต', cancelReason: 'ความลึกนูนอยู่ในพิกัดยอมรับ' },
-                { id: 'WG6-1008', date: getISODateOffset(-4), workOrder: 'WO-2611-0060', department: 'พิมพ์', machine: '2104', operator: 'คุณสมชาย พิมพ์ดี', qaName: 'คุณมนัส QA', defect: 'พิมพ์ไม่ตรง', quantity: 210, unit: 'แผ่น', correctiveAction: 'แก้ไขไม่ได้ยกงานลง', cancelReason: 'เพลทพิมพ์เคลื่อนผิดตำแหน่งหลุดเกณฑ์' }
+                { id: 'WG6-1008', date: getISODateOffset(-4), workOrder: 'WO-2611-0060', department: 'พิมพ์', machine: '2104', operator: 'คุณสมชาย พิมพ์ดี', qaName: 'คุณมนัส QA', defect: 'พิมพ์ไม่ตรง', quantity: 210, unit: 'แผ่น', correctiveAction: 'แก้ไขไม่ได้ยกงานลง', cancelReason: 'เพลทพิมพ์เคลื่อนผิดตำแหน่งหลุดเกณฑ์' },
+                { id: 'WG6-1009', date: getISODateOffset(0), workOrder: 'WO-2611-0125', department: 'ทั่วไป', machine: 'แผนกทั่วไป', operator: 'คุณเอกชัย ทั่วไป', qaName: 'คุณสุดารัตน์ QA', defect: 'ไม่ปฏิบัติตามระบบ', quantity: 1, unit: 'ชิ้น', correctiveAction: 'รอสรุป', cancelReason: 'ตักเตือนและทบทวนขั้นตอนปฏิบัติงาน' }
             ];
             allRecords = sample;
             saveRecordsToStorage();
             refreshAllViews();
             if (showNoti) {
-                showToast('เพิ่มรายการข้อมูลตัวอย่างใหม่เรียบร้อยแล้ว', 'success');
+                showToast('เพิ่มรายการข้อมูลตัวอย่างพร้อมหัวข้อใหม่เรียบร้อยแล้ว', 'success');
             }
         }
 
@@ -2094,6 +2126,32 @@ function formatDateValue(val) {
                 showToast('อัปเดตโลโก้เรียบร้อยแล้ว', 'success');
             };
             reader.readAsDataURL(file);
+        }
+
+        function loadCustomBackground() {
+            const savedBg = localStorage.getItem(STORAGE_KEY_BG);
+            if (savedBg) {
+                document.body.style.backgroundImage = `linear-gradient(rgba(240, 245, 250, 0.92), rgba(240, 245, 250, 0.92)), url('${savedBg}')`;
+            }
+        }
+
+        function uploadCustomBackground(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64Str = e.target.result;
+                localStorage.setItem(STORAGE_KEY_BG, base64Str);
+                document.body.style.backgroundImage = `linear-gradient(rgba(240, 245, 250, 0.92), rgba(240, 245, 250, 0.92)), url('${base64Str}')`;
+                showToast('เปลี่ยนภาพพื้นหลังเว็บไซต์เรียบร้อยแล้ว', 'success');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function resetCustomBackground() {
+            localStorage.removeItem(STORAGE_KEY_BG);
+            document.body.style.backgroundImage = 'none';
+            showToast('รีเซ็ตภาพพื้นหลังเป็นค่าเริ่มต้นแล้ว', 'info');
         }
 
         function handleLogoError(img) {
