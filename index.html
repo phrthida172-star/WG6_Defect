@@ -1,0 +1,1927 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ติดตามปัญหาระหว่างการผลิต เหรียญทองการพิมพ์ (WG6)</title>
+    
+    <!-- Google Fonts: Prompt & Sarabun สำหรับภาษาไทยที่อ่านง่าย ทันสมัย -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js สำหรับสร้างกราฟวิเคราะห์ข้อมูล -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Prompt', 'Sarabun', 'sans-serif'],
+                    },
+                    colors: {
+                        navy: {
+                            800: '#0F2544',
+                            900: '#09182E',
+                            950: '#050E1C',
+                        },
+                        royal: {
+                            600: '#1D4ED8',
+                            700: '#1E40AF',
+                            800: '#1E3A8A',
+                        },
+                        gold: {
+                            300: '#FDE047',
+                            400: '#FBBF24',
+                            500: '#D4AF37',
+                            600: '#B48E22',
+                            700: '#927014',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: #F0F5FA;
+            color: #1E293B;
+        }
+
+        /* ตกแต่ง Scrollbar ให้เข้ากับธีมฟ้า-ทอง */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #E2E8F0;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #94A3B8;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #D4AF37;
+        }
+
+        /* กรอบสีทองไล่เฉดสุดพรีเมียม */
+        .gold-border-gradient {
+            border-bottom: 3px solid transparent;
+            border-image: linear-gradient(to right, #B48E22, #FDE047, #D4AF37, #B48E22);
+            border-image-slice: 1;
+        }
+
+        .gold-card-accent {
+            position: relative;
+            overflow: hidden;
+        }
+        .gold-card-accent::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #1E3A8A, #D4AF37, #FBBF24);
+        }
+
+        /* Animation จุดกระพริบสถานะ Real-time */
+        @keyframes pulse-ring {
+            0% { transform: scale(0.8); opacity: 0.8; }
+            70% { transform: scale(2.2); opacity: 0; }
+            100% { transform: scale(2.2); opacity: 0; }
+        }
+        .live-dot::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background-color: #10B981;
+            animation: pulse-ring 1.8s infinite ease-out;
+        }
+
+        /* สไตล์สำหรับ Dropdown ค้นหาได้ */
+        .custom-select-dropdown {
+            max-height: 220px;
+            overflow-y: auto;
+            z-index: 50;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- ==================== HEADER BAR (ธีมน้ำเงินเข้มตัดขอบทอง) ==================== -->
+    <header class="bg-gradient-to-r from-navy-950 via-navy-900 to-royal-800 text-white shadow-xl gold-border-gradient sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                
+                <!-- โลโก้ต้นฉบับ KIM PAI และหัวข้อหลัก -->
+                <div class="flex items-center gap-4">
+                    <!-- กรอบแสดงโลโก้ต้นฉบับ 100% ไม่ดัดแปลง -->
+                    <div class="relative group bg-white/95 rounded-xl p-1 shadow-md border-2 border-gold-500 flex-shrink-0 overflow-hidden" style="width: 112px; height: 74px;" title="โลโก้ต้นฉบับ KIM PAI PRINTING & PACKAGING">
+                        <img id="companyLogoImg" src="KIMpai.jpg" alt="KIM PAI PRINTING & PACKAGING" 
+                             class="w-full h-full object-contain"
+                             onerror="handleLogoError(this)">
+                        <!-- ปุ่มอัปโหลดโลโก้สำรองเผื่อไฟล์รูปไม่ได้อยู่ในโฟลเดอร์เดียวกัน -->
+                        <label for="logoUploadInput" class="absolute inset-0 bg-navy-900/75 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-[10px] text-gold-300 cursor-pointer text-center px-1">
+                            <i class="fa-solid fa-camera mb-0.5 text-xs"></i>
+                            <span>เปลี่ยนรูปโลโก้</span>
+                        </label>
+                        <input type="file" id="logoUploadInput" accept="image/*" class="hidden" onchange="uploadCustomLogo(event)">
+                    </div>
+
+                    <div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="px-2.5 py-0.5 text-xs font-bold tracking-wider uppercase rounded-full bg-gold-500/20 text-gold-300 border border-gold-500/50">
+                                KIM PAI PRINTING & PACKAGING
+                            </span>
+                            <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-blue-500/30 text-blue-200 border border-blue-400/40">
+                                Real-Time QC Monitor
+                            </span>
+                        </div>
+                        <h1 class="text-base sm:text-xl xl:text-2xl font-bold text-white tracking-wide mt-1 drop-shadow lg:whitespace-nowrap">
+                            ติดตามปัญหาระหว่างการผลิต <span class="text-gold-400 whitespace-nowrap">เหรียญทองการพิมพ์ (WG6)</span>
+                        </h1>
+                    </div>
+                </div>
+
+                <!-- ส่วนแสดงสถานะ Real-time และนาฬิกา -->
+                <div class="flex flex-wrap items-center justify-between md:justify-end gap-3 bg-navy-950/60 px-3.5 py-2 rounded-xl border border-gold-500/30">
+                    <div class="flex items-center gap-2">
+                        <div class="relative w-3 h-3 rounded-full bg-emerald-400 live-dot" id="liveIndicatorDot"></div>
+                        <div>
+                            <div class="text-xs font-semibold text-emerald-400 flex items-center gap-1.5" id="syncStatusText">
+                                <span>LIVE REAL-TIME</span>
+                            </div>
+                            <div class="text-[11px] text-blue-200" id="lastSyncTimeText">อัปเดตล่าสุด: กำลังโหลด...</div>
+                        </div>
+                    </div>
+
+                    <div class="h-7 w-[1px] bg-slate-700 hidden sm:block"></div>
+
+                    <div class="text-right">
+                        <div id="realtimeClock" class="text-sm font-bold text-gold-300 font-mono">00:00:00</div>
+                        <div id="realtimeDate" class="text-[11px] text-slate-300">วันจันทร์ที่ 16 พ.ย. 2569</div>
+                    </div>
+
+                    <button onclick="manualSyncNow()" id="btnManualSync" title="ซิงค์ข้อมูลทันที"
+                            class="p-2 rounded-lg bg-gold-500 hover:bg-gold-400 text-navy-950 font-bold transition shadow active:scale-95">
+                        <i class="fa-solid fa-rotate" id="syncIcon"></i>
+                    </button>
+
+                    <!-- ปุ่มรูปฟันเฟืองตั้งค่า Google Sheet มุมบนด้านขวา -->
+                    <button onclick="switchTab('settings')" id="tab-settings" title="ตั้งค่าเชื่อมต่อ Google Sheet & Apps Script"
+                            class="relative p-2 rounded-lg bg-navy-800 hover:bg-royal-700 text-gold-300 border border-gold-500/50 transition shadow active:scale-95">
+                        <i class="fa-solid fa-gear text-base"></i>
+                        <span id="sheetConnectedBadge" class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-amber-400 border border-navy-950" title="สถานะการเชื่อมต่อ Google Sheet"></span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- เมนูนำทางหลัก (Navigation Tabs เหลือ 2 แท็บหลักที่ชัดเจน) -->
+            <nav class="flex space-x-2 mt-4 pt-2 border-t border-white/10 overflow-x-auto pb-1">
+                <button onclick="switchTab('dashboard')" id="tab-dashboard"
+                        class="nav-tab active flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all whitespace-nowrap bg-gradient-to-r from-gold-500 to-gold-400 text-navy-950 shadow-md">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>สรุปผลการรายงาน</span>
+                </button>
+                <button onclick="switchTab('record')" id="tab-record"
+                        class="nav-tab flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all whitespace-nowrap text-blue-100 hover:bg-white/10">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    <span>บันทึกปัญหา / แก้ไขข้อมูล</span>
+                    <span id="badgeTotalRecords" class="ml-1 px-2 py-0.5 text-xs rounded-full bg-navy-950 text-gold-300 border border-gold-500/40">0</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- ==================== แถบแจ้งเตือน (Toast Notification) ==================== -->
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- ==================== MAIN CONTENT AREA ==================== -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- ===================================================================== -->
+        <!-- TAB 1: หน้าแดชบอร์ดสรุปผล (DASHBOARD OVERVIEW)                          -->
+        <!-- ===================================================================== -->
+        <section id="view-dashboard" class="space-y-6">
+            
+            <!-- แถบตัวกรองข้อมูล (Filter Bar) -->
+            <div class="bg-white rounded-2xl shadow-sm border border-blue-100 p-4 gold-card-accent">
+                <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 flex-grow">
+                        <div>
+                            <label class="block text-xs font-semibold text-navy-800 mb-1">
+                                <i class="fa-regular fa-calendar text-gold-600 mr-1"></i>ตั้งแต่วันที่
+                            </label>
+                            <input type="date" id="filterStartDate" onchange="applyDashboardFilters()"
+                                   class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold-500 bg-slate-50">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-navy-800 mb-1">
+                                <i class="fa-regular fa-calendar-check text-gold-600 mr-1"></i>ถึงวันที่
+                            </label>
+                            <input type="date" id="filterEndDate" onchange="applyDashboardFilters()"
+                                   class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold-500 bg-slate-50">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-navy-800 mb-1">
+                                <i class="fa-solid fa-building-user text-royal-600 mr-1"></i>กรองตามแผนก
+                            </label>
+                            <select id="filterDepartment" onchange="applyDashboardFilters()"
+                                    class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold-500 bg-slate-50">
+                                <option value="ALL">ทุกแผนก (ทั้งหมด)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-navy-800 mb-1">
+                                <i class="fa-solid fa-gears text-royal-600 mr-1"></i>กรองตามเครื่องจักร
+                            </label>
+                            <select id="filterMachine" onchange="applyDashboardFilters()"
+                                    class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold-500 bg-slate-50">
+                                <option value="ALL">ทุกเครื่องจักร (ทั้งหมด)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2 self-end">
+                        <button onclick="resetDashboardFilters()"
+                                class="px-4 py-2 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 text-sm font-medium transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-filter-circle-xmark"></i>
+                            <span>ล้างตัวกรอง</span>
+                        </button>
+                        <button onclick="switchTab('record')"
+                                class="px-4 py-2 rounded-xl bg-navy-900 hover:bg-royal-800 text-gold-300 border border-gold-500/40 text-sm font-semibold transition flex items-center gap-1.5 shadow">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>แจ้งปัญหาใหม่</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- การ์ดตัวชี้วัดสำคัญ (KPI Cards 4 ใบ) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- KPI 1 -->
+                <div class="bg-gradient-to-br from-navy-900 to-royal-800 text-white rounded-2xl p-5 shadow-md border border-gold-500/40 relative overflow-hidden">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-xs font-medium text-blue-200 uppercase tracking-wider">จำนวนครั้งที่พบปัญหา</p>
+                            <h3 class="text-3xl font-bold text-gold-300 mt-1" id="kpiTotalEvents">0</h3>
+                            <p class="text-xs text-blue-200 mt-2">รายการบันทึกในช่วงที่เลือก</p>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-gold-500/20 border border-gold-400/40 flex items-center justify-center text-gold-300 text-xl">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KPI 2 -->
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-blue-100 gold-card-accent">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">ยอดรวมจำนวนที่เสีย (แยกหน่วย)</p>
+                            <div class="mt-1.5 space-y-0.5">
+                                <div class="flex items-baseline gap-2">
+                                    <span class="text-2xl font-bold text-royal-800" id="kpiTotalSheets">0</span>
+                                    <span class="text-xs font-semibold px-2 py-0.5 rounded-md bg-blue-100 text-royal-800">แผ่น</span>
+                                </div>
+                                <div class="flex items-baseline gap-2">
+                                    <span class="text-2xl font-bold text-amber-600" id="kpiTotalPieces">0</span>
+                                    <span class="text-xs font-semibold px-2 py-0.5 rounded-md bg-amber-100 text-amber-800">ชิ้น</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-royal-700 text-xl">
+                            <i class="fa-solid fa-layer-group"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KPI 3 -->
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-blue-100 gold-card-accent">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">แผนกที่พบปัญหาสูงสุด</p>
+                            <h3 class="text-xl font-bold text-navy-900 mt-1.5 truncate max-w-[170px]" id="kpiTopDept">-</h3>
+                            <p class="text-xs font-medium text-amber-600 mt-2" id="kpiTopDeptCount">0 ครั้ง (0%)</p>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 text-xl">
+                            <i class="fa-solid fa-industry"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KPI 4 -->
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-blue-100 gold-card-accent">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">เครื่องจักรที่พบปัญหาสูงสุด</p>
+                            <h3 class="text-xl font-bold text-navy-900 mt-1.5 truncate max-w-[170px]" id="kpiTopMachine">-</h3>
+                            <p class="text-xs font-medium text-royal-700 mt-2" id="kpiTopMachineCount">0 ครั้ง</p>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-600 text-xl">
+                            <i class="fa-solid fa-gear"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- โซนกราฟวิเคราะห์ข้อมูล (4 กราฟ แบ่งสีชัดเจนตามแต่ละชนิด/หมวดหมู่) -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                <!-- กราฟที่ 1: จำนวนปัญหาแยกตามแผนก (สีแยกตามแต่ละแผนก) -->
+                <div class="bg-white rounded-2xl shadow-sm border border-blue-100 p-5">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-base font-bold text-navy-900 flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-royal-600 inline-block"></span>
+                                จำนวนครั้งที่พบปัญหาแยกตามแผนก
+                            </h3>
+                            <p class="text-xs text-slate-500">แบ่งสีเฉพาะตามแต่ละแผนกการผลิต</p>
+                        </div>
+                        <span class="text-xs font-semibold px-2.5 py-1 rounded-lg bg-blue-50 text-royal-700 border border-blue-200">รายแผนก</span>
+                    </div>
+                    <div class="relative h-72 w-full">
+                        <canvas id="deptChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- กราฟที่ 2: Top 10 ปัญหาที่พบบ่อยที่สุด (สีแยกตามชนิดของปัญหา) -->
+                <div class="bg-white rounded-2xl shadow-sm border border-blue-100 p-5">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-base font-bold text-navy-900 flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-gold-500 inline-block"></span>
+                                Top 10 ปัญหาที่พบบ่อยที่สุด
+                            </h3>
+                            <p class="text-xs text-slate-500">แบ่งสีตามชนิดของปัญหาที่ตรวจพบ</p>
+                        </div>
+                        <span class="text-xs font-semibold px-2.5 py-1 rounded-lg bg-amber-50 text-amber-700 border border-amber-200">Top 10 Defects</span>
+                    </div>
+                    <div class="relative h-72 w-full">
+                        <canvas id="defectChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- กราฟที่ 3: ปัญหาแยกตามเครื่องจักร (สีแยกตามแต่ละเครื่อง) -->
+                <div class="bg-white rounded-2xl shadow-sm border border-blue-100 p-5">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-base font-bold text-navy-900 flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-teal-500 inline-block"></span>
+                                สถิติการพบปัญหาแยกตามเครื่องจักร (Top 12)
+                            </h3>
+                            <p class="text-xs text-slate-500">เปรียบเทียบความถี่ของปัญหาแต่ละหมายเลขเครื่อง</p>
+                        </div>
+                        <span class="text-xs font-semibold px-2.5 py-1 rounded-lg bg-teal-50 text-teal-700 border border-teal-200">รายเครื่องจักร</span>
+                    </div>
+                    <div class="relative h-72 w-full">
+                        <canvas id="machineChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- กราฟที่ 4: สัดส่วนหน่วยนับ (แผ่น vs ชิ้น) และแนวโน้มรายวัน -->
+                <div class="bg-white rounded-2xl shadow-sm border border-blue-100 p-5">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-base font-bold text-navy-900 flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-indigo-500 inline-block"></span>
+                                แนวโน้มการพบปัญหารายวัน & สัดส่วนหน่วยนับ
+                            </h3>
+                            <p class="text-xs text-slate-500">แสดงแนวโน้มจำนวนครั้งที่เกิดปัญหาในแต่ละวัน</p>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs">
+                            <span class="px-2 py-0.5 rounded bg-blue-100 text-royal-800 font-semibold" id="chartUnitSheetBadge">แผ่น: 0</span>
+                            <span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-semibold" id="chartUnitPieceBadge">ชิ้น: 0</span>
+                        </div>
+                    </div>
+                    <div class="relative h-72 w-full">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ตารางรายการปัญหาล่าสุด (Recent Issues Table) -->
+            <div class="bg-white rounded-2xl shadow-sm border border-blue-100 overflow-hidden">
+                <div class="bg-gradient-to-r from-navy-900 to-royal-800 px-5 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <h3 class="text-white font-bold text-base flex items-center gap-2">
+                        <i class="fa-solid fa-clock-rotate-left text-gold-400"></i>
+                        รายการแจ้งปัญหาระหว่างการผลิตล่าสุด (10 รายการล่าสุด)
+                    </h3>
+                    <button onclick="switchTab('record')" class="text-xs font-semibold text-gold-300 hover:text-white underline self-start sm:self-auto">
+                        ดูทั้งหมดและจัดการข้อมูล &rarr;
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-blue-50/80 text-navy-900 text-xs uppercase border-b border-blue-100">
+                                <th class="py-3 px-4 font-bold">วันที่แจ้ง</th>
+                                <th class="py-3 px-4 font-bold">เลขที่ใบสั่งผลิต</th>
+                                <th class="py-3 px-4 font-bold">แผนก</th>
+                                <th class="py-3 px-4 font-bold">เครื่องจักร</th>
+                                <th class="py-3 px-4 font-bold">หัวหน้าเครื่อง</th>
+                                <th class="py-3 px-4 font-bold">ปัญหาที่พบ</th>
+                                <th class="py-3 px-4 font-bold text-right">จำนวนที่พบ</th>
+                                <th class="py-3 px-4 font-bold text-center">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentIssuesTableBody" class="divide-y divide-slate-100 text-sm">
+                            <!-- แสดงข้อมูลผ่าน JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================================================================== -->
+        <!-- TAB 2: หน้าบันทึกและแก้ไขปัญหา (RECORD & EDIT ISSUES)                  -->
+        <!-- ===================================================================== -->
+        <section id="view-record" class="hidden space-y-6">
+            
+            <!-- ฟอร์มบันทึก / แก้ไขข้อมูล -->
+            <div class="bg-white rounded-2xl shadow-md border border-blue-200 overflow-hidden" id="recordFormCard">
+                <div class="bg-gradient-to-r from-navy-900 via-royal-800 to-navy-900 px-6 py-4 flex items-center justify-between border-b-2 border-gold-500">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-gold-500 text-navy-950 flex items-center justify-center font-bold text-lg shadow">
+                            <i class="fa-solid fa-file-pen" id="formHeaderIcon"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-bold text-white" id="formHeaderTitle">บันทึกแจ้งปัญหาระหว่างการผลิต (ใหม่)</h2>
+                            <p class="text-xs text-blue-200">กรอกข้อมูลให้ครบถ้วน ระบบจะอัปเดตแดชบอร์ดและส่งไปยัง Google Sheet ทันที</p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="resetFormToNewMode()" id="btnCancelEdit" class="hidden px-3 py-1.5 rounded-lg bg-red-500/20 hover:bg-red-500 text-red-200 hover:text-white border border-red-400/50 text-xs font-semibold transition">
+                        <i class="fa-solid fa-xmark mr-1"></i>ยกเลิกการแก้ไข
+                    </button>
+                </div>
+
+                <form id="defectForm" onsubmit="handleFormSubmit(event)" class="p-6 space-y-5">
+                    <input type="hidden" id="editRecordId" value="">
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                        <!-- 1. วันที่แจ้ง -->
+                        <div>
+                            <label for="inputDate" class="block text-sm font-bold text-navy-900 mb-1.5">
+                                1. วันที่แจ้ง <span class="text-red-500">*</span>
+                            </label>
+                            <input type="date" id="inputDate" required
+                                   class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-gold-500 bg-slate-50">
+                        </div>
+
+                        <!-- 2. เลขที่ใบสั่งผลิต -->
+                        <div>
+                            <label for="inputWorkOrder" class="block text-sm font-bold text-navy-900 mb-1.5">
+                                2. เลขที่ใบสั่งผลิต <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="inputWorkOrder" required placeholder="เช่น WO-6911-0452"
+                                   class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-gold-500 bg-slate-50 uppercase">
+                        </div>
+
+                        <!-- 3. แผนก -->
+                        <div>
+                            <label for="inputDepartment" class="block text-sm font-bold text-navy-900 mb-1.5">
+                                3. แผนก <span class="text-red-500">*</span>
+                            </label>
+                            <select id="inputDepartment" required
+                                    class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-gold-500 bg-slate-50">
+                                <option value="" disabled selected>-- เลือกแผนก --</option>
+                            </select>
+                        </div>
+
+                        <!-- 4. เครื่อง / เครื่องจักร (เลือกได้ + พิมพ์ค้นหาได้) -->
+                        <div class="relative">
+                            <label for="inputMachineSearch" class="block text-sm font-bold text-navy-900 mb-1.5">
+                                4. เครื่อง / เครื่องจักร <span class="text-red-500">*</span>
+                            </label>
+                            <div class="relative">
+                                <input type="text" id="inputMachineSearch" required autocomplete="off"
+                                       placeholder="คลิกเลือกหรือพิมพ์รหัสเครื่อง เช่น 2101..."
+                                       onfocus="openDropdown('machineDropdownList')"
+                                       oninput="filterMachineDropdown(this.value)"
+                                       class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 pr-9 text-sm focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-gold-500 bg-slate-50">
+                                <i class="fa-solid fa-chevron-down absolute right-3.5 top-3.5 text-slate-400 text-xs pointer-events-none"></i>
+                            </div>
+                            <div id="machineDropdownList" class="hidden absolute left-0 right-0 mt-1 bg-white border border-slate-300 rounded-xl shadow-xl custom-select-dropdown">
+                                <!-- รายการเครื่องจักรสร้างจาก JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                        <!-- 5. หัวหน้าเครื่อง -->
+                        <div>
+                            <label for="inputOperator" class="block text-sm font-bold text-navy-900 mb-1.5">
+                                5. หัวหน้าเครื่อง <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="inputOperator" required placeholder="ระบุชื่อ-นามสกุล หรือชื่อเล่น"
+                                   class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-gold-500 bg-slate-50">
+                        </div>
+
+                        <!-- 6. ปัญหาที่พบ (เลือกได้ + พิมพ์ค้นหาได้ครบทั้ง 42 รายการ) -->
+                        <div class="relative lg:col-span-2">
+                            <label for="inputDefectSearch" class="block text-sm font-bold text-navy-900 mb-1.5">
+                                6. ปัญหาที่พบระหว่างการผลิต <span class="text-red-500">*</span>
+                            </label>
+                            <div class="relative">
+                                <input type="text" id="inputDefectSearch" required autocomplete="off"
+                                       placeholder="คลิกเลือก หรือพิมพ์คำค้นหาปัญหา เช่น สีเลอะ, ปั๊มไม่ตรง, กาวล่อน..."
+                                       onfocus="openDropdown('defectDropdownList')"
+                                       oninput="filterDefectDropdown(this.value)"
+                                       class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 pr-9 text-sm focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-gold-500 bg-slate-50">
+                                <i class="fa-solid fa-magnifying-glass absolute right-3.5 top-3.5 text-slate-400 text-xs pointer-events-none"></i>
+                            </div>
+                            <div id="defectDropdownList" class="hidden absolute left-0 right-0 mt-1 bg-white border border-slate-300 rounded-xl shadow-xl custom-select-dropdown">
+                                <!-- รายการปัญหาสร้างจาก JS -->
+                            </div>
+                        </div>
+
+                        <!-- 7. จำนวนที่พบปัญหา และ 8. หน่วยนับ (แผ่น / ชิ้น) -->
+                        <div>
+                            <label for="inputQuantity" class="block text-sm font-bold text-navy-900 mb-1.5">
+                                7. จำนวนที่พบ & หน่วยนับ <span class="text-red-500">*</span>
+                            </label>
+                            <div class="flex rounded-xl shadow-sm">
+                                <input type="number" id="inputQuantity" required min="1" step="1" placeholder="จำนวน"
+                                       class="w-3/5 rounded-l-xl border border-r-0 border-slate-300 px-3 py-2.5 text-sm font-bold text-navy-900 focus:outline-none focus:ring-2 focus:ring-gold-500 bg-slate-50">
+                                <select id="inputUnit" required
+                                        class="w-2/5 rounded-r-xl border border-slate-300 bg-amber-50 text-navy-900 font-bold text-sm px-2.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-gold-500">
+                                    <option value="แผ่น">แผ่น</option>
+                                    <option value="ชิ้น">ชิ้น</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ปุ่มบันทึกข้อมูล -->
+                    <div class="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-end gap-3">
+                        <button type="button" onclick="resetFormToNewMode()"
+                                class="px-5 py-2.5 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 font-semibold text-sm transition">
+                            ล้างข้อมูลในฟอร์ม
+                        </button>
+                        <button type="submit" id="btnSubmitForm"
+                                class="px-7 py-2.5 rounded-xl bg-gradient-to-r from-navy-900 via-royal-800 to-navy-900 hover:from-royal-700 hover:to-navy-800 text-gold-300 border border-gold-500 font-bold text-sm shadow-lg transition flex items-center gap-2 active:scale-95">
+                            <i class="fa-solid fa-floppy-disk"></i>
+                            <span id="btnSubmitText">บันทึกข้อมูลเข้าระบบ</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- ตารางจัดการข้อมูลทั้งหมด (ค้นหา + แก้ไข + ลบ + Export CSV) -->
+            <div class="bg-white rounded-2xl shadow-sm border border-blue-100 overflow-hidden">
+                <div class="p-4 sm:p-5 bg-slate-50 border-b border-slate-200 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                    <div>
+                        <h3 class="text-base font-bold text-navy-900">ฐานข้อมูลรายการปัญหาทั้งหมด</h3>
+                        <p class="text-xs text-slate-500">คลิกปุ่ม <span class="text-amber-600 font-semibold">"แก้ไข"</span> เพื่อนำข้อมูลขึ้นไปแก้ไขด้านบน หรือคลิก <span class="text-red-600 font-semibold">"ลบ"</span> เพื่อนำรายการออก</p>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-2.5">
+                        <!-- ช่องค้นหาในตาราง -->
+                        <div class="relative flex-grow sm:flex-grow-0">
+                            <input type="text" id="tableSearchInput" oninput="renderAllRecordsTable()"
+                                   placeholder="ค้นหาใบสั่งผลิต, เครื่อง, ปัญหา, หัวหน้า..."
+                                   class="w-full sm:w-64 rounded-xl border border-slate-300 pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold-500">
+                            <i class="fa-solid fa-search absolute left-3 top-3 text-slate-400 text-xs"></i>
+                        </div>
+
+                        <!-- กรองแผนกในตาราง -->
+                        <select id="tableFilterDept" onchange="renderAllRecordsTable()"
+                                class="rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold-500">
+                            <option value="ALL">ทุกแผนก</option>
+                        </select>
+
+                        <!-- ปุ่มส่งออก CSV -->
+                        <button onclick="exportToCSV()"
+                                class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold shadow-sm transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-file-excel"></i>
+                            <span>ส่งออก CSV</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-navy-900 text-gold-300 text-xs uppercase">
+                                <th class="py-3.5 px-4 font-semibold">#</th>
+                                <th class="py-3.5 px-4 font-semibold">วันที่แจ้ง</th>
+                                <th class="py-3.5 px-4 font-semibold">เลขที่ใบสั่งผลิต</th>
+                                <th class="py-3.5 px-4 font-semibold">แผนก</th>
+                                <th class="py-3.5 px-4 font-semibold">เครื่องจักร</th>
+                                <th class="py-3.5 px-4 font-semibold">หัวหน้าเครื่อง</th>
+                                <th class="py-3.5 px-4 font-semibold">ปัญหาที่พบ</th>
+                                <th class="py-3.5 px-4 font-semibold text-right">จำนวนที่พบ</th>
+                                <th class="py-3.5 px-4 font-semibold text-center">การจัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="allRecordsTableBody" class="divide-y divide-slate-200 text-sm">
+                            <!-- แสดงข้อมูลทั้งหมดจาก JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================================================================== -->
+        <!-- TAB 3: หน้าตั้งค่า GOOGLE SHEET & APPS SCRIPT                          -->
+        <!-- ===================================================================== -->
+        <section id="view-settings" class="hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                <!-- ฝั่งซ้าย: ฟอร์มตั้งค่าการเชื่อมต่อ Google Sheet -->
+                <div class="lg:col-span-5 space-y-6">
+                    <div class="bg-white rounded-2xl shadow-md border border-blue-100 p-6 gold-card-accent">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-11 h-11 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-file-csv"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-bold text-navy-900">เชื่อมต่อ Google Sheet (Apps Script)</h2>
+                                <p class="text-xs text-slate-500">ซิงค์ข้อมูลบันทึกและแก้ไขแบบเรียลไทม์อัตโนมัติ</p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-bold text-navy-900 mb-1">
+                                    Google Apps Script Web App URL <span class="text-red-500">*</span>
+                                </label>
+                                <input type="url" id="settingScriptUrl" placeholder="https://script.google.com/macros/s/...../exec"
+                                       class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gold-500 bg-slate-50 font-mono text-xs">
+                                <p class="text-[11px] text-slate-500 mt-1">นำ URL ที่ได้จากการ Deploy Web App (ลงท้ายด้วย /exec) มาวางที่นี่</p>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-bold text-navy-900 mb-1">
+                                    ชื่อแท็บชีต (Sheet Name)
+                                </label>
+                                <input type="text" id="settingSheetName" value="WG6_Defects" placeholder="เช่น WG6_Defects"
+                                       class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gold-500 bg-slate-50">
+                            </div>
+
+                            <div class="flex items-center justify-between bg-blue-50/70 p-3 rounded-xl border border-blue-100">
+                                <div>
+                                    <span class="text-sm font-bold text-navy-900 block">เปิดใช้งาน Auto-Sync เรียลไทม์</span>
+                                    <span class="text-xs text-slate-500">ดึงข้อมูลอัตโนมัติจาก Sheet ทุกๆ 15 วินาที</span>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="settingAutoSync" checked class="sr-only peer" onchange="toggleAutoSync()">
+                                    <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-royal-700"></div>
+                                </label>
+                            </div>
+
+                            <div class="pt-2 flex flex-col sm:flex-row gap-2.5">
+                                <button onclick="saveSheetSettings()"
+                                        class="flex-1 py-2.5 px-4 rounded-xl bg-navy-900 hover:bg-royal-800 text-gold-300 border border-gold-500 font-bold text-sm transition shadow flex items-center justify-center gap-2">
+                                    <i class="fa-solid fa-check-circle"></i>
+                                    <span>บันทึกการตั้งค่า</span>
+                                </button>
+                                <button onclick="testAndPullFromSheet()"
+                                        class="flex-1 py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm transition shadow flex items-center justify-center gap-2">
+                                    <i class="fa-solid fa-cloud-arrow-down"></i>
+                                    <span>ทดสอบ & ดึงข้อมูล</span>
+                                </button>
+                            </div>
+
+                            <!-- กล่องแสดงสถานะการเชื่อมต่อ -->
+                            <div id="connectionStatusBox" class="p-3.5 rounded-xl bg-slate-100 border border-slate-200 text-xs text-slate-600">
+                                <i class="fa-solid fa-circle-info text-royal-600 mr-1"></i>
+                                สถานะปัจจุบัน: <strong>ทำงานในโหมด Local Storage (พร้อมใช้งานทันที)</strong> หากใส่ URL ด้านบน ระบบจะซิงค์ขึ้น Google Sheet ให้อัตโนมัติ
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- จัดการข้อมูลตัวอย่าง -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-blue-100 p-5">
+                    <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+                        <h3 class="text-sm font-bold text-navy-900">เครื่องมือจัดการข้อมูลทดสอบ</h3>
+                        <div class="flex gap-2">
+                            <button onclick="loadSampleData(true)" class="px-3.5 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-royal-800 border border-blue-200 text-xs font-semibold transition">
+                                <i class="fa-solid fa-wand-magic-sparkles mr-1"></i>โหลดข้อมูลตัวอย่าง WG6
+                            </button>
+                            <button onclick="confirmClearAllData()" class="px-3.5 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 text-xs font-semibold transition">
+                                <i class="fa-solid fa-trash-can mr-1"></i>ล้างข้อมูลทั้งหมดในเครื่อง
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ฝั่งขวา: โค้ด Google Apps Script สำเร็จรูป พร้อมคู่มือการติดตั้ง -->
+                <div class="lg:col-span-7 bg-white rounded-2xl shadow-md border border-blue-100 overflow-hidden flex flex-col">
+                    <div class="bg-navy-900 px-5 py-3.5 flex items-center justify-between border-b border-gold-500/40">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-code text-gold-400"></i>
+                            <h3 class="text-white font-bold text-sm">โค้ด Google Apps Script สำเร็จรูป (รองรับอ่าน / เพิ่ม / แก้ไข / ลบ)</h3>
+                        </div>
+                        <button onclick="copyAppsScriptCode()"
+                                class="px-3 py-1.5 rounded-lg bg-gold-500 hover:bg-gold-400 text-navy-950 font-bold text-xs transition flex items-center gap-1.5 shadow">
+                            <i class="fa-regular fa-copy"></i>
+                            <span id="copyCodeBtnText">คัดลอกโค้ด</span>
+                        </button>
+                    </div>
+
+                    <div class="p-4 bg-blue-50/60 border-b border-blue-100 text-xs text-navy-900 space-y-1">
+                        <p class="font-bold text-royal-800">วิธีติดตั้ง Google Apps Script ง่ายๆ ใน 4 ขั้นตอน:</p>
+                        <ol class="list-decimal list-inside space-y-0.5 text-slate-700">
+                            <li>สร้างไฟล์ <strong>Google Sheets</strong> ใหม่ ตั้งชื่อตามต้องการ แล้วไปที่เมนู <strong>ส่วนขยาย (Extensions) &gt; Apps Script</strong></li>
+                            <li>ลบโค้ดเดิมทั้งหมด แล้ววางโค้ดด้านล่างนี้ลงไป จากนั้นกด <strong>บันทึก (Save)</strong></li>
+                            <li>กดปุ่ม <strong>ทำให้ใช้งานได้ (Deploy) &gt; การทำให้ใช้งานได้รายการใหม่ (New deployment)</strong> เลือกประเภทเป็น <strong>เว็บแอป (Web app)</strong></li>
+                            <li>ตั้งค่าผู้มีสิทธิ์เข้าถึงเป็น <strong>"ทุกคน (Anyone)"</strong> กด Deploy แล้วคัดลอก <strong>Web app URL</strong> มาวางในช่องด้านซ้าย</li>
+                        </ol>
+                    </div>
+
+                    <div class="relative flex-grow bg-slate-900 text-emerald-300 p-4 overflow-x-auto font-mono text-xs leading-relaxed">
+<pre id="appsScriptCodeBlock">// ============================================================================
+// Google Apps Script สำหรับระบบติดตามปัญหาระหว่างการผลิต เหรียญทองการพิมพ์ (WG6)
+// รองรับ: อ่านข้อมูล (GET), เพิ่มข้อมูลใหม่ (CREATE), แก้ไข (UPDATE), ลบ (DELETE)
+// ============================================================================
+
+function doGet(e) {
+  var sheetName = (e && e.parameter && e.parameter.sheet) ? e.parameter.sheet : 'WG6_Defects';
+  var sheet = getOrCreateSheet(sheetName);
+  var data = sheet.getDataRange().getValues();
+  var records = [];
+
+  for (var i = 1; i < data.length; i++) {
+    if (data[i][0] !== '') {
+      records.push({
+        id: String(data[i][0]),
+        date: formatDateValue(data[i][1]),
+        workOrder: String(data[i][2]),
+        department: String(data[i][3]),
+        machine: String(data[i][4]),
+        operator: String(data[i][5]),
+        defect: String(data[i][6]),
+        quantity: Number(data[i][7]) || 0,
+        unit: String(data[i][8] || 'แผ่น'),
+        updatedAt: String(data[i][9] || '')
+      });
+    }
+  }
+
+  return ContentService.createTextOutput(JSON.stringify({
+    status: 'success',
+    records: records
+  })).setMimeType(ContentService.MimeType.JSON);
+}
+
+function doPost(e) {
+  try {
+    var payload = JSON.parse(e.postData.contents);
+    var action = payload.action || 'create';
+    var sheetName = payload.sheetName || 'WG6_Defects';
+    var sheet = getOrCreateSheet(sheetName);
+    var rec = payload.record;
+
+    if (action === 'create') {
+      sheet.appendRow([
+        rec.id, rec.date, rec.workOrder, rec.department,
+        rec.machine, rec.operator, rec.defect, rec.quantity,
+        rec.unit, new Date().toISOString()
+      ]);
+    } else if (action === 'update') {
+      var rows = sheet.getDataRange().getValues();
+      var found = false;
+      for (var i = 1; i < rows.length; i++) {
+        if (String(rows[i][0]) === String(rec.id)) {
+          sheet.getRange(i + 1, 1, 1, 10).setValues([[
+            rec.id, rec.date, rec.workOrder, rec.department,
+            rec.machine, rec.operator, rec.defect, rec.quantity,
+            rec.unit, new Date().toISOString()
+          ]]);
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        sheet.appendRow([
+          rec.id, rec.date, rec.workOrder, rec.department,
+          rec.machine, rec.operator, rec.defect, rec.quantity,
+          rec.unit, new Date().toISOString()
+        ]);
+      }
+    } else if (action === 'delete') {
+      var rowsDel = sheet.getDataRange().getValues();
+      for (var j = rowsDel.length - 1; j >= 1; j--) {
+        if (String(rowsDel[j][0]) === String(payload.id)) {
+          sheet.deleteRow(j + 1);
+          break;
+        }
+      }
+    }
+
+    return ContentService.createTextOutput(JSON.stringify({
+      status: 'success',
+      message: 'บันทึกข้อมูลเรียบร้อย'
+    })).setMimeType(ContentService.MimeType.JSON);
+
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({
+      status: 'error',
+      message: err.toString()
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function getOrCreateSheet(sheetName) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(sheetName);
+  if (!sheet) {
+    sheet = ss.insertSheet(sheetName);
+    sheet.appendRow([
+      'ID', 'วันที่แจ้ง', 'เลขที่ใบสั่งผลิต', 'แผนก', 'เครื่องจักร',
+      'หัวหน้าเครื่อง', 'ปัญหาที่พบ', 'จำนวนที่พบ', 'หน่วยนับ', 'อัปเดตล่าสุด'
+    ]);
+    sheet.getRange(1, 1, 1, 10).setFontWeight('bold').setBackground('#0F2544').setFontColor('#FBBF24');
+  }
+  return sheet;
+}
+
+function formatDateValue(val) {
+  if (val instanceof Date) {
+    return Utilities.formatDate(val, Session.getScriptTimeZone(), 'yyyy-MM-dd');
+  }
+  return String(val);
+}</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ==================== MODAL ยืนยันการลบข้อมูล (ไม่ใช้ alert/confirm) ==================== -->
+    <div id="deleteConfirmModal" class="hidden fixed inset-0 bg-navy-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-gold-500/40 animate-fade-in">
+            <div class="flex items-center gap-3 text-red-600 mb-3">
+                <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-lg">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <h3 class="text-lg font-bold text-navy-900" id="modalConfirmTitle">ยืนยันการลบข้อมูล</h3>
+            </div>
+            <p class="text-sm text-slate-600 mb-5" id="modalConfirmMessage">คุณต้องการลบรายการบันทึกปัญหานี้ใช่หรือไม่? ข้อมูลที่ลบจะไม่สามารถกู้คืนได้</p>
+            <div class="flex justify-end gap-2.5">
+                <button onclick="closeConfirmModal()" class="px-4 py-2 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 text-sm font-semibold">
+                    ยกเลิก
+                </button>
+                <button id="btnConfirmDeleteAction" class="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-sm font-semibold shadow">
+                    ยืนยันการลบ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== FOOTER ==================== -->
+    <footer class="bg-navy-950 text-slate-400 text-xs py-4 border-t border-gold-500/30 mt-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2">
+            <div>
+                <span class="text-gold-400 font-semibold">บริษัท เหรียญทองการพิมพ์ จำกัด (WG6)</span> &bull; KIM PAI PRINTING &amp; PACKAGING
+            </div>
+            <div>
+                ระบบติดตามและวิเคราะห์ปัญหาระหว่างการผลิตแบบเรียลไทม์ (Real-Time Production Defect Dashboard)
+            </div>
+        </div>
+    </footer>
+
+    <!-- ==================== JAVASCRIPT LOGIC ==================== -->
+    <script>
+        // =========================================================================
+        // 1. ข้อมูลหลัก (MASTER DATA) ตามที่ระบุครบถ้วน 100%
+        // =========================================================================
+        const DEPARTMENTS = [
+            "พิมพ์",
+            "อาบมันรีดเงา",
+            "ปั๊ม",
+            "แกะ",
+            "ทั่วไป",
+            "ขึ้นรูปกล่อง",
+            "คลังสินค้า",
+            "บริการลูกค้า"
+        ];
+
+        const MACHINES = [
+            "2101", "2103", "2104", "2105", "2106", "2107",
+            "3131", "3132", "3165", "3161", "3166",
+            "5104", "5105", "5106",
+            "4101", "4102", "4103", "4104", "4105", "4106", "4107", "4108",
+            "6101", "6103", "6104", "6106", "6107", "6108", "6109", "6110",
+            "แผนกแกะ", "แผนกทั่วไป", "คลังสินค้า", "บริการลูกค้า"
+        ];
+
+        const DEFECT_TYPES = [
+            "สีไม่ได้มาตรฐาน", "พิมพ์ไม่ตรง", "สีเลอะ", "จุดขาว", "ขี้หมึก",
+            "ขี้กระดาษ", "รอยชักกระดาษ", "คราบผ้ายาง", "โค๊ทไม่ได้มาตรฐาน", "โค๊ทไม่ตรง",
+            "ค่าความเงาไม่ได้มาตรฐาน", "กระดาษยับ", "เว้นUVไม่ถูกตำแหน่ง", "เว้นSilk screenไม่ถูกตำแหน่ง",
+            "UVไม่ตรง", "UVเป็นรอย", "Silk screenไม่ตรง", "Silk screenเป็นรอย", "ปั๊มไม่ขาด",
+            "ปั๊มไม่ตรง", "เส้นพับแตก", "เส้นพับไม่ได้มาตรฐาน", "ปั๊มนูนไม่ได้มาตรฐาน", "ปั๊มเคไม่ได้มาตรฐาน",
+            "ปั้มนูนไม่ตรง", "ปั๊มเคไม่ตรง", "ขุยกระดาษ", "ปั๊มกล่องเกย", "ปั๊มกล่องเอียง",
+            "ปั๊มนูนไม่ถูกตำแหน่ง", "ปั๊มเคไม่ถูกตำแหน่ง", "กาวล่อน", "กาวติด", "กาวเลอะ",
+            "กาวเอียง", "กาวไม่ตรงตำแหน่ง", "ติดกล่องห่าง", "ติดกล่องเกย", "ติดกล่องเอียง",
+            "ลังบรรจุไม่ได้มาตรฐาน", "คัด100%ไม่มีประสิทธิภาพ", "งานโค่น"
+        ];
+
+        // ชุดสีสำหรับแยกสีแต่ละแท่งกราฟ (Multi-color distinct palette)
+        const MULTI_COLOR_PALETTE = [
+            '#1D4ED8', '#D4AF37', '#0D9488', '#DC2626', '#7C3AED',
+            '#EA580C', '#0284C7', '#16A34A', '#DB2777', '#4F46E5',
+            '#CA8A04', '#059669', '#E11D48', '#2563EB', '#9333EA'
+        ];
+
+        // สีเฉพาะของแต่ละแผนก (ให้สีคงที่ทุกครั้งที่แสดงผล)
+        const DEPARTMENT_COLORS = {
+            "พิมพ์": "#1D4ED8",          // Royal Blue
+            "อาบมันรีดเงา": "#0D9488",   // Teal
+            "ปั๊ม": "#D4AF37",           // Metallic Gold
+            "แกะ": "#EA580C",           // Vivid Orange
+            "ทั่วไป": "#6366F1",         // Indigo
+            "ขึ้นรูปกล่อง": "#DC2626",  // Crimson Red
+            "คลังสินค้า": "#059669",     // Emerald Green
+            "บริการลูกค้า": "#9333EA"   // Royal Purple
+        };
+
+        // =========================================================================
+        // 2. ตัวแปรสถานะของระบบ (STATE & STORAGE)
+        // =========================================================================
+        const STORAGE_KEY_RECORDS = 'wg6_production_defects_v1';
+        const STORAGE_KEY_SETTINGS = 'wg6_sheet_settings_v1';
+        const STORAGE_KEY_LOGO = 'wg6_custom_logo_v1';
+
+        let allRecords = [];
+        let sheetSettings = {
+            scriptUrl: '',
+            sheetName: 'WG6_Defects',
+            autoSync: true
+        };
+        let autoSyncIntervalId = null;
+
+        // ตัวแปรเก็บ Instance ของ Chart.js
+        let chartInstances = {
+            dept: null,
+            defect: null,
+            machine: null,
+            trend: null
+        };
+
+        // =========================================================================
+        // 3. เริ่มต้นระบบเมื่อโหลดหน้าเว็บ (INITIALIZATION)
+        // =========================================================================
+        window.onload = function() {
+            initClock();
+            populateDropdownOptions();
+            loadSavedLogo();
+            loadSettings();
+            loadRecordsFromStorage();
+            
+            // ตั้งค่าวันที่เริ่มต้นในฟอร์มเป็นวันนี้
+            document.getElementById('inputDate').value = getTodayISO();
+
+            // อัปเดต UI ทั้งหมด
+            refreshAllViews();
+            updateLastSyncBadge();
+
+            // หากตั้งค่า Google Sheet URL ไว้แล้ว ให้ดึงข้อมูลล่าสุดทันที
+            if (sheetSettings.scriptUrl) {
+                fetchFromGoogleSheet(true);
+            }
+
+            // เริ่มระบบ Auto-Sync เรียลไทม์
+            setupAutoSyncTimer();
+
+            // ปิด Dropdown ค้นหาเมื่อคลิกพื้นที่อื่น
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('#inputMachineSearch') && !e.target.closest('#machineDropdownList')) {
+                    document.getElementById('machineDropdownList').classList.add('hidden');
+                }
+                if (!e.target.closest('#inputDefectSearch') && !e.target.closest('#defectDropdownList')) {
+                    document.getElementById('defectDropdownList').classList.add('hidden');
+                }
+            });
+        };
+
+        // นาฬิกาเรียลไทม์ภาษาไทย
+        function initClock() {
+            const update = () => {
+                const now = new Date();
+                document.getElementById('realtimeClock').textContent = now.toLocaleTimeString('th-TH', { hour12: false });
+                document.getElementById('realtimeDate').textContent = now.toLocaleDateString('th-TH', {
+                    weekday: 'short', day: 'numeric', month: 'short', year: 'numeric'
+                });
+            };
+            update();
+            setInterval(update, 1000);
+        }
+
+        function getTodayISO() {
+            const now = new Date();
+            const offset = now.getTimezoneOffset() * 60000;
+            return new Date(now.getTime() - offset).toISOString().split('T')[0];
+        }
+
+        // จัดการกรณีโหลดโลโก้ KIMpai.jpg ไม่พบ ให้มี fallback และปุ่มอัปโหลด
+        function handleLogoError(img) {
+            img.onerror = null;
+            // สร้างภาพสำรองที่ระบุชื่อ KIM PAI ชัดเจนเผื่อกรณีเปิดไฟล์เดี่ยวโดยไม่มีไฟล์ KIMpai.jpg ข้างๆ
+            img.src = "https://placehold.co/220x148/F3E5AB/0F2544?text=KIM+PAI%0APRINTING+%26+PACKAGING";
+        }
+
+        function uploadCustomLogo(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const dataUrl = e.target.result;
+                document.getElementById('companyLogoImg').src = dataUrl;
+                try {
+                    localStorage.setItem(STORAGE_KEY_LOGO, dataUrl);
+                    showToast('อัปเดตโลโก้บริษัทเรียบร้อยแล้ว', 'success');
+                } catch (err) {
+                    showToast('แสดงโลโก้ชั่วคราว (ไฟล์ขนาดใหญ่เกินกว่าบันทึกถาวร)', 'warning');
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function loadSavedLogo() {
+            const savedLogo = localStorage.getItem(STORAGE_KEY_LOGO);
+            if (savedLogo) {
+                document.getElementById('companyLogoImg').src = savedLogo;
+            }
+        }
+
+        // =========================================================================
+        // 4. เติมตัวเลือกใน Dropdown และ Searchable Lists
+        // =========================================================================
+        function populateDropdownOptions() {
+            // 1. แผนก (ในฟอร์มบันทึก, ตัวกรอง Dashboard, ตัวกรองตาราง)
+            const inputDept = document.getElementById('inputDepartment');
+            const filterDept = document.getElementById('filterDepartment');
+            const tableFilterDept = document.getElementById('tableFilterDept');
+
+            DEPARTMENTS.forEach(dept => {
+                inputDept.add(new Option(dept, dept));
+                filterDept.add(new Option(dept, dept));
+                tableFilterDept.add(new Option(dept, dept));
+            });
+
+            // 2. เครื่องจักร (ในตัวกรอง Dashboard และรายการเลือกในฟอร์ม)
+            const filterMachine = document.getElementById('filterMachine');
+            MACHINES.forEach(m => {
+                filterMachine.add(new Option(m, m));
+            });
+
+            renderMachineDropdownList(MACHINES);
+            renderDefectDropdownList(DEFECT_TYPES);
+        }
+
+        function openDropdown(listId) {
+            document.getElementById(listId).classList.remove('hidden');
+        }
+
+        function renderMachineDropdownList(items) {
+            const listEl = document.getElementById('machineDropdownList');
+            if (items.length === 0) {
+                listEl.innerHTML = `<div class="px-3.5 py-2.5 text-xs text-slate-400">ไม่พบหมายเลขเครื่องที่ค้นหา</div>`;
+                return;
+            }
+            listEl.innerHTML = items.map(m => `
+                <div onclick="selectMachineOption('${m}')"
+                     class="px-3.5 py-2 text-sm hover:bg-blue-50 cursor-pointer flex items-center justify-between border-b border-slate-50 last:border-0">
+                    <span class="font-medium text-navy-900">${m}</span>
+                    <span class="text-[11px] text-slate-400">เลือก</span>
+                </div>
+            `).join('');
+        }
+
+        function filterMachineDropdown(keyword) {
+            openDropdown('machineDropdownList');
+            const q = keyword.trim().toLowerCase();
+            const filtered = MACHINES.filter(m => m.toLowerCase().includes(q));
+            renderMachineDropdownList(filtered);
+        }
+
+        function selectMachineOption(val) {
+            document.getElementById('inputMachineSearch').value = val;
+            document.getElementById('machineDropdownList').classList.add('hidden');
+        }
+
+        function renderDefectDropdownList(items) {
+            const listEl = document.getElementById('defectDropdownList');
+            if (items.length === 0) {
+                listEl.innerHTML = `<div class="px-3.5 py-2.5 text-xs text-slate-400">ไม่พบชื่อปัญหาที่ค้นหา</div>`;
+                return;
+            }
+            listEl.innerHTML = items.map(d => `
+                <div onclick="selectDefectOption('${d}')"
+                     class="px-3.5 py-2 text-sm hover:bg-amber-50 cursor-pointer flex items-center justify-between border-b border-slate-50 last:border-0">
+                    <span class="font-medium text-navy-900">${d}</span>
+                    <span class="text-[11px] text-gold-700">เลือกปัญหา</span>
+                </div>
+            `).join('');
+        }
+
+        function filterDefectDropdown(keyword) {
+            openDropdown('defectDropdownList');
+            const q = keyword.trim().toLowerCase();
+            const filtered = DEFECT_TYPES.filter(d => d.toLowerCase().includes(q));
+            renderDefectDropdownList(filtered);
+        }
+
+        function selectDefectOption(val) {
+            document.getElementById('inputDefectSearch').value = val;
+            document.getElementById('defectDropdownList').classList.add('hidden');
+        }
+
+        // =========================================================================
+        // 5. การสลับหน้าแท็บ (NAVIGATION TABS)
+        // =========================================================================
+        function switchTab(tabName) {
+            const tabs = ['dashboard', 'record', 'settings'];
+            tabs.forEach(t => {
+                const viewEl = document.getElementById(`view-${t}`);
+                const btnEl = document.getElementById(`tab-${t}`);
+                if (t === tabName) {
+                    viewEl.classList.remove('hidden');
+                    btnEl.className = 'nav-tab active flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all whitespace-nowrap bg-gradient-to-r from-gold-500 to-gold-400 text-navy-950 shadow-md';
+                } else {
+                    viewEl.classList.add('hidden');
+                    btnEl.className = 'nav-tab flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all whitespace-nowrap text-blue-100 hover:bg-white/10';
+                }
+            });
+
+            if (tabName === 'dashboard') {
+                applyDashboardFilters();
+            }
+        }
+
+        // =========================================================================
+        // 6. การจัดการข้อมูล (CRUD: เพิ่ม / แก้ไข / ลบ / โหลดตัวอย่าง)
+        // =========================================================================
+        function loadRecordsFromStorage() {
+            const saved = localStorage.getItem(STORAGE_KEY_RECORDS);
+            if (saved) {
+                try {
+                    allRecords = JSON.parse(saved);
+                } catch (e) {
+                    allRecords = [];
+                }
+            }
+            // หากยังไม่มีข้อมูลเลย ให้โหลดข้อมูลตัวอย่างของ WG6 เพื่อให้กราฟแสดงผลสวยงามทันที
+            if (!allRecords || allRecords.length === 0) {
+                loadSampleData(false);
+            }
+        }
+
+        function saveRecordsToStorage() {
+            localStorage.setItem(STORAGE_KEY_RECORDS, JSON.stringify(allRecords));
+            document.getElementById('badgeTotalRecords').textContent = allRecords.length;
+        }
+
+        function loadSampleData(notify = true) {
+            const today = new Date();
+            const getOffsetDate = (daysAgo) => {
+                const d = new Date(today);
+                d.setDate(d.getDate() - daysAgo);
+                const offset = d.getTimezoneOffset() * 60000;
+                return new Date(d.getTime() - offset).toISOString().split('T')[0];
+            };
+
+            allRecords = [
+                { id: 'WG6-1001', date: getOffsetDate(0), workOrder: 'WO-6911-0812', department: 'พิมพ์', machine: '2104', operator: 'สมชาย ใจดี', defect: 'สีไม่ได้มาตรฐาน', quantity: 450, unit: 'แผ่น' },
+                { id: 'WG6-1002', date: getOffsetDate(0), workOrder: 'WO-6911-0815', department: 'ปั๊ม', machine: '4102', operator: 'วิชัย รุ่งเรือง', defect: 'ปั๊มไม่ตรง', quantity: 1200, unit: 'ชิ้น' },
+                { id: 'WG6-1003', date: getOffsetDate(0), workOrder: 'WO-6911-0819', department: 'อาบมันรีดเงา', machine: '3131', operator: 'ประเสริฐ ศรีสุข', defect: 'UVเป็นรอย', quantity: 320, unit: 'แผ่น' },
+                { id: 'WG6-1004', date: getOffsetDate(1), workOrder: 'WO-6911-0798', department: 'ขึ้นรูปกล่อง', machine: '6104', operator: 'นภา พรหมมา', defect: 'กาวล่อน', quantity: 2500, unit: 'ชิ้น' },
+                { id: 'WG6-1005', date: getOffsetDate(1), workOrder: 'WO-6911-0801', department: 'พิมพ์', machine: '2101', operator: 'กิตติพงษ์ แสงทอง', defect: 'พิมพ์ไม่ตรง', quantity: 600, unit: 'แผ่น' },
+                { id: 'WG6-1006', date: getOffsetDate(1), workOrder: 'WO-6911-0805', department: 'ปั๊ม', machine: '4105', operator: 'สุรศักดิ์ มั่นคง', defect: 'เส้นพับแตก', quantity: 850, unit: 'แผ่น' },
+                { id: 'WG6-1007', date: getOffsetDate(2), workOrder: 'WO-6911-0770', department: 'แกะ', machine: 'แผนกแกะ', operator: 'สุดา รักงาน', defect: 'ขุยกระดาษ', quantity: 1800, unit: 'ชิ้น' },
+                { id: 'WG6-1008', date: getOffsetDate(2), workOrder: 'WO-6911-0774', department: 'ขึ้นรูปกล่อง', machine: '6108', operator: 'วันชัย ทองแท้', defect: 'ติดกล่องเอียง', quantity: 950, unit: 'ชิ้น' },
+                { id: 'WG6-1009', date: getOffsetDate(2), workOrder: 'WO-6911-0781', department: 'พิมพ์', machine: '2106', operator: 'ธนากร วัฒนา', defect: 'ขี้หมึก', quantity: 280, unit: 'แผ่น' },
+                { id: 'WG6-1010', date: getOffsetDate(3), workOrder: 'WO-6911-0752', department: 'อาบมันรีดเงา', machine: '3165', operator: 'มานะ อดทน', defect: 'ค่าความเงาไม่ได้มาตรฐาน', quantity: 410, unit: 'แผ่น' },
+                { id: 'WG6-1011', date: getOffsetDate(3), workOrder: 'WO-6911-0760', department: 'ปั๊ม', machine: '5104', operator: 'เอกชัย บุญมี', defect: 'ปั๊มเคไม่ตรง', quantity: 530, unit: 'แผ่น' },
+                { id: 'WG6-1012', date: getOffsetDate(4), workOrder: 'WO-6911-0741', department: 'คลังสินค้า', machine: 'คลังสินค้า', operator: 'สมหญิง จริงใจ', defect: 'ลังบรรจุไม่ได้มาตรฐาน', quantity: 140, unit: 'ชิ้น' },
+                { id: 'WG6-1013', date: getOffsetDate(4), workOrder: 'WO-6911-0745', department: 'ทั่วไป', machine: 'แผนกทั่วไป', operator: 'อำนาจ เจริญ', defect: 'คัด100%ไม่มีประสิทธิภาพ', quantity: 3100, unit: 'ชิ้น' },
+                { id: 'WG6-1014', date: getOffsetDate(5), workOrder: 'WO-6911-0720', department: 'พิมพ์', machine: '2104', operator: 'สมชาย ใจดี', defect: 'สีเลอะ', quantity: 390, unit: 'แผ่น' }
+            ];
+
+            saveRecordsToStorage();
+            refreshAllViews();
+            if (notify) {
+                showToast('โหลดข้อมูลตัวอย่างโรงพิมพ์เหรียญทองการพิมพ์ (WG6) เรียบร้อยแล้ว', 'success');
+            }
+        }
+
+        // บันทึกหรืออัปเดตข้อมูลจากฟอร์ม
+        function handleFormSubmit(event) {
+            event.preventDefault();
+
+            const editId = document.getElementById('editRecordId').value;
+            const dateVal = document.getElementById('inputDate').value;
+            const workOrderVal = document.getElementById('inputWorkOrder').value.trim().toUpperCase();
+            const deptVal = document.getElementById('inputDepartment').value;
+            const machineVal = document.getElementById('inputMachineSearch').value.trim();
+            const operatorVal = document.getElementById('inputOperator').value.trim();
+            const defectVal = document.getElementById('inputDefectSearch').value.trim();
+            const qtyVal = parseInt(document.getElementById('inputQuantity').value, 10) || 0;
+            const unitVal = document.getElementById('inputUnit').value;
+
+            if (!MACHINES.includes(machineVal)) {
+                showToast('กรุณาเลือกหมายเลขเครื่องจักรจากรายการที่กำหนด', 'warning');
+                document.getElementById('inputMachineSearch').focus();
+                return;
+            }
+
+            if (!DEFECT_TYPES.includes(defectVal)) {
+                showToast('กรุณาเลือกประเภทปัญหาจากรายการที่กำหนด', 'warning');
+                document.getElementById('inputDefectSearch').focus();
+                return;
+            }
+
+            if (editId) {
+                // โหมดแก้ไขข้อมูลเดิม
+                const idx = allRecords.findIndex(r => r.id === editId);
+                if (idx !== -1) {
+                    const updatedRecord = {
+                        id: editId,
+                        date: dateVal,
+                        workOrder: workOrderVal,
+                        department: deptVal,
+                        machine: machineVal,
+                        operator: operatorVal,
+                        defect: defectVal,
+                        quantity: qtyVal,
+                        unit: unitVal
+                    };
+                    allRecords[idx] = updatedRecord;
+                    saveRecordsToStorage();
+                    refreshAllViews();
+                    sendToGoogleSheet('update', updatedRecord);
+                    showToast(`แก้ไขข้อมูลใบสั่งผลิต ${workOrderVal} เรียบร้อยแล้ว`, 'success');
+                    resetFormToNewMode();
+                }
+            } else {
+                // โหมดเพิ่มข้อมูลใหม่
+                const newRecord = {
+                    id: 'WG6-' + Date.now().toString().slice(-6),
+                    date: dateVal,
+                    workOrder: workOrderVal,
+                    department: deptVal,
+                    machine: machineVal,
+                    operator: operatorVal,
+                    defect: defectVal,
+                    quantity: qtyVal,
+                    unit: unitVal
+                };
+                allRecords.unshift(newRecord);
+                saveRecordsToStorage();
+                refreshAllViews();
+                sendToGoogleSheet('create', newRecord);
+                showToast(`บันทึกปัญหาใบสั่งผลิต ${workOrderVal} เรียบร้อยแล้ว`, 'success');
+                resetFormToNewMode();
+            }
+        }
+
+        // ดึงข้อมูลรายการที่เลือกขึ้นมาแก้ไขบนฟอร์ม
+        function startEditRecord(id) {
+            const rec = allRecords.find(r => r.id === id);
+            if (!rec) return;
+
+            switchTab('record');
+
+            document.getElementById('editRecordId').value = rec.id;
+            document.getElementById('inputDate').value = rec.date;
+            document.getElementById('inputWorkOrder').value = rec.workOrder;
+            document.getElementById('inputDepartment').value = rec.department;
+            document.getElementById('inputMachineSearch').value = rec.machine;
+            document.getElementById('inputOperator').value = rec.operator;
+            document.getElementById('inputDefectSearch').value = rec.defect;
+            document.getElementById('inputQuantity').value = rec.quantity;
+            document.getElementById('inputUnit').value = rec.unit;
+
+            // เปลี่ยน UI ฟอร์มเป็นโหมดแก้ไข
+            document.getElementById('formHeaderTitle').textContent = `กำลังแก้ไขข้อมูล: ${rec.workOrder} (${rec.machine})`;
+            document.getElementById('formHeaderIcon').className = 'fa-solid fa-pen-to-square';
+            document.getElementById('btnSubmitText').textContent = 'อัปเดตการแก้ไขข้อมูล';
+            document.getElementById('btnCancelEdit').classList.remove('hidden');
+
+            document.getElementById('recordFormCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            showToast(`โหลดข้อมูล ${rec.workOrder} ขึ้นฟอร์มแก้ไขแล้ว`, 'info');
+        }
+
+        function resetFormToNewMode() {
+            document.getElementById('defectForm').reset();
+            document.getElementById('editRecordId').value = '';
+            document.getElementById('inputDate').value = getTodayISO();
+            document.getElementById('inputUnit').value = 'แผ่น';
+
+            document.getElementById('formHeaderTitle').textContent = 'บันทึกแจ้งปัญหาระหว่างการผลิต (ใหม่)';
+            document.getElementById('formHeaderIcon').className = 'fa-solid fa-file-pen';
+            document.getElementById('btnSubmitText').textContent = 'บันทึกข้อมูลเข้าระบบ';
+            document.getElementById('btnCancelEdit').classList.add('hidden');
+        }
+
+        // ระบบยืนยันการลบข้อมูลด้วย Modal (ไม่ใช้ confirm/alert)
+        let pendingDeleteAction = null;
+
+        function promptDeleteRecord(id) {
+            const rec = allRecords.find(r => r.id === id);
+            if (!rec) return;
+
+            document.getElementById('modalConfirmTitle').textContent = 'ยืนยันการลบรายการปัญหา';
+            document.getElementById('modalConfirmMessage').innerHTML = 
+                `ต้องการลบรายการใบสั่งผลิต <strong>${rec.workOrder}</strong> (เครื่อง <strong>${rec.machine}</strong> - ${rec.defect}) ใช่หรือไม่?`;
+            
+            pendingDeleteAction = () => {
+                allRecords = allRecords.filter(r => r.id !== id);
+                saveRecordsToStorage();
+                refreshAllViews();
+                sendToGoogleSheet('delete', { id: id });
+                if (document.getElementById('editRecordId').value === id) {
+                    resetFormToNewMode();
+                }
+                showToast('ลบรายการข้อมูลเรียบร้อยแล้ว', 'success');
+                closeConfirmModal();
+            };
+
+            document.getElementById('btnConfirmDeleteAction').onclick = pendingDeleteAction;
+            document.getElementById('deleteConfirmModal').classList.remove('hidden');
+        }
+
+        function confirmClearAllData() {
+            document.getElementById('modalConfirmTitle').textContent = 'ยืนยันการล้างข้อมูลทั้งหมด';
+            document.getElementById('modalConfirmMessage').textContent = 'คุณต้องการล้างข้อมูลในหน้าเว็บทั้งหมดใช่หรือไม่? (ข้อมูลใน Google Sheet จะไม่ถูกลบ)';
+            
+            document.getElementById('btnConfirmDeleteAction').onclick = () => {
+                allRecords = [];
+                saveRecordsToStorage();
+                refreshAllViews();
+                showToast('ล้างข้อมูลในเครื่องเรียบร้อยแล้ว', 'info');
+                closeConfirmModal();
+            };
+            document.getElementById('deleteConfirmModal').classList.remove('hidden');
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('deleteConfirmModal').classList.add('hidden');
+        }
+
+        // =========================================================================
+        // 7. การแสดงผลตารางและแดชบอร์ด (DASHBOARD KPIs, CHARTS & TABLES)
+        // =========================================================================
+        function refreshAllViews() {
+            document.getElementById('badgeTotalRecords').textContent = allRecords.length;
+            applyDashboardFilters();
+            renderAllRecordsTable();
+        }
+
+        function applyDashboardFilters() {
+            const startDate = document.getElementById('filterStartDate').value;
+            const endDate = document.getElementById('filterEndDate').value;
+            const dept = document.getElementById('filterDepartment').value;
+            const machine = document.getElementById('filterMachine').value;
+
+            const filtered = allRecords.filter(item => {
+                if (startDate && item.date < startDate) return false;
+                if (endDate && item.date > endDate) return false;
+                if (dept !== 'ALL' && item.department !== dept) return false;
+                if (machine !== 'ALL' && item.machine !== machine) return false;
+                return true;
+            });
+
+            updateDashboardKPIs(filtered);
+            updateDashboardCharts(filtered);
+            renderRecentIssuesTable(filtered.slice(0, 10));
+        }
+
+        function resetDashboardFilters() {
+            document.getElementById('filterStartDate').value = '';
+            document.getElementById('filterEndDate').value = '';
+            document.getElementById('filterDepartment').value = 'ALL';
+            document.getElementById('filterMachine').value = 'ALL';
+            applyDashboardFilters();
+            showToast('รีเซ็ตตัวกรองข้อมูลแล้ว', 'info');
+        }
+
+        function updateDashboardKPIs(data) {
+            const totalEvents = data.length;
+            let totalSheets = 0;
+            let totalPieces = 0;
+
+            const deptCounts = {};
+            const machineCounts = {};
+
+            data.forEach(item => {
+                const qty = Number(item.quantity) || 0;
+                if (item.unit === 'ชิ้น') {
+                    totalPieces += qty;
+                } else {
+                    totalSheets += qty;
+                }
+
+                deptCounts[item.department] = (deptCounts[item.department] || 0) + 1;
+                machineCounts[item.machine] = (machineCounts[item.machine] || 0) + 1;
+            });
+
+            document.getElementById('kpiTotalEvents').textContent = totalEvents.toLocaleString();
+            document.getElementById('kpiTotalSheets').textContent = totalSheets.toLocaleString();
+            document.getElementById('kpiTotalPieces').textContent = totalPieces.toLocaleString();
+            document.getElementById('chartUnitSheetBadge').textContent = `แผ่น: ${totalSheets.toLocaleString()}`;
+            document.getElementById('chartUnitPieceBadge').textContent = `ชิ้น: ${totalPieces.toLocaleString()}`;
+
+            // หาแผนกที่พบปัญหาสูงสุด
+            const topDeptEntry = Object.entries(deptCounts).sort((a, b) => b[1] - a[1])[0];
+            if (topDeptEntry) {
+                const pct = Math.round((topDeptEntry[1] / totalEvents) * 100);
+                document.getElementById('kpiTopDept').textContent = topDeptEntry[0];
+                document.getElementById('kpiTopDeptCount').textContent = `${topDeptEntry[1]} ครั้ง (${pct}%)`;
+            } else {
+                document.getElementById('kpiTopDept').textContent = '-';
+                document.getElementById('kpiTopDeptCount').textContent = '0 ครั้ง (0%)';
+            }
+
+            // หาเครื่องจักรที่พบปัญหาสูงสุด
+            const topMachineEntry = Object.entries(machineCounts).sort((a, b) => b[1] - a[1])[0];
+            if (topMachineEntry) {
+                document.getElementById('kpiTopMachine').textContent = `เครื่อง ${topMachineEntry[0]}`;
+                document.getElementById('kpiTopMachineCount').textContent = `พบปัญหา ${topMachineEntry[1]} ครั้ง`;
+            } else {
+                document.getElementById('kpiTopMachine').textContent = '-';
+                document.getElementById('kpiTopMachineCount').textContent = '0 ครั้ง';
+            }
+        }
+
+        function updateDashboardCharts(data) {
+            // --- 1. กราฟแยกตามแผนก (สีแยกตามแต่ละแผนกชัดเจน) ---
+            const deptLabels = DEPARTMENTS;
+            const deptValues = deptLabels.map(d => data.filter(item => item.department === d).length);
+            const deptColors = deptLabels.map(d => DEPARTMENT_COLORS[d] || '#1D4ED8');
+
+            if (chartInstances.dept) chartInstances.dept.destroy();
+            chartInstances.dept = new Chart(document.getElementById('deptChart'), {
+                type: 'bar',
+                data: {
+                    labels: deptLabels,
+                    datasets: [{
+                        label: 'จำนวนครั้งที่พบปัญหา',
+                        data: deptValues,
+                        backgroundColor: deptColors,
+                        borderRadius: 8,
+                        borderWidth: 1,
+                        borderColor: '#FFFFFF'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => ` พบปัญหา: ${ctx.raw} ครั้ง`
+                            }
+                        }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { stepSize: 1, font: { family: 'Prompt' } }, grid: { color: '#F1F5F9' } },
+                        x: { ticks: { font: { family: 'Prompt', size: 11 } }, grid: { display: false } }
+                    }
+                }
+            });
+
+            // --- 2. กราฟ Top 10 ปัญหาที่พบบ่อย (แต่ละแท่งสีแยกตามชนิดของปัญหา) ---
+            const defectMap = {};
+            data.forEach(item => {
+                defectMap[item.defect] = (defectMap[item.defect] || 0) + 1;
+            });
+            const topDefects = Object.entries(defectMap).sort((a, b) => b[1] - a[1]).slice(0, 10);
+            const defectLabels = topDefects.map(e => e[0]);
+            const defectValues = topDefects.map(e => e[1]);
+            const defectBarColors = defectLabels.map((_, idx) => MULTI_COLOR_PALETTE[idx % MULTI_COLOR_PALETTE.length]);
+
+            if (chartInstances.defect) chartInstances.defect.destroy();
+            chartInstances.defect = new Chart(document.getElementById('defectChart'), {
+                type: 'bar',
+                data: {
+                    labels: defectLabels,
+                    datasets: [{
+                        label: 'จำนวนครั้งที่พบ',
+                        data: defectValues,
+                        backgroundColor: defectBarColors,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: { beginAtZero: true, ticks: { stepSize: 1, font: { family: 'Prompt' } }, grid: { color: '#F1F5F9' } },
+                        y: { ticks: { font: { family: 'Prompt', size: 11 } }, grid: { display: false } }
+                    }
+                }
+            });
+
+            // --- 3. กราฟแยกตามเครื่องจักร Top 12 (แต่ละแท่งสีแยกตามแต่ละเครื่อง) ---
+            const machineMap = {};
+            data.forEach(item => {
+                machineMap[item.machine] = (machineMap[item.machine] || 0) + 1;
+            });
+            const topMachines = Object.entries(machineMap).sort((a, b) => b[1] - a[1]).slice(0, 12);
+            const machineLabels = topMachines.map(e => e[0]);
+            const machineValues = topMachines.map(e => e[1]);
+            const machineColors = machineLabels.map((_, idx) => MULTI_COLOR_PALETTE[(idx + 2) % MULTI_COLOR_PALETTE.length]);
+
+            if (chartInstances.machine) chartInstances.machine.destroy();
+            chartInstances.machine = new Chart(document.getElementById('machineChart'), {
+                type: 'bar',
+                data: {
+                    labels: machineLabels,
+                    datasets: [{
+                        label: 'จำนวนครั้งที่พบปัญหา',
+                        data: machineValues,
+                        backgroundColor: machineColors,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { stepSize: 1, font: { family: 'Prompt' } }, grid: { color: '#F1F5F9' } },
+                        x: { ticks: { font: { family: 'Prompt', size: 11 } }, grid: { display: false } }
+                    }
+                }
+            });
+
+            // --- 4. กราฟแนวโน้มรายวัน (แยกสีจุดและเส้นโทนฟ้า-ทอง) ---
+            const dateMap = {};
+            data.forEach(item => {
+                dateMap[item.date] = (dateMap[item.date] || 0) + 1;
+            });
+            const sortedDates = Object.keys(dateMap).sort();
+            const trendLabels = sortedDates.map(d => formatThaiShortDate(d));
+            const trendValues = sortedDates.map(d => dateMap[d]);
+
+            if (chartInstances.trend) chartInstances.trend.destroy();
+            chartInstances.trend = new Chart(document.getElementById('trendChart'), {
+                type: 'line',
+                data: {
+                    labels: trendLabels,
+                    datasets: [{
+                        label: 'จำนวนครั้งที่พบปัญหารายวัน',
+                        data: trendValues,
+                        borderColor: '#1E3A8A',
+                        backgroundColor: 'rgba(212, 175, 55, 0.22)',
+                        pointBackgroundColor: '#D4AF37',
+                        pointBorderColor: '#0F2544',
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.35
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { stepSize: 1, font: { family: 'Prompt' } }, grid: { color: '#F1F5F9' } },
+                        x: { ticks: { font: { family: 'Prompt', size: 11 } }, grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        function formatThaiShortDate(isoDate) {
+            if (!isoDate) return '-';
+            const parts = isoDate.split('-');
+            if (parts.length !== 3) return isoDate;
+            const thaiMonths = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+            const day = parseInt(parts[2], 10);
+            const month = thaiMonths[parseInt(parts[1], 10) - 1] || parts[1];
+            const yearShort = (parseInt(parts[0], 10) + 543).toString().slice(-2);
+            return `${day} ${month} ${yearShort}`;
+        }
+
+        function getDeptBadgeHTML(dept) {
+            const color = DEPARTMENT_COLORS[dept] || '#1D4ED8';
+            return `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold text-white shadow-sm" style="background-color: ${color}">
+                        ${dept}
+                    </span>`;
+        }
+
+        function renderRecentIssuesTable(items) {
+            const tbody = document.getElementById('recentIssuesTableBody');
+            if (items.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="py-8 text-center text-slate-400">ไม่พบข้อมูลปัญหาในช่วงตัวกรองที่เลือก</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = items.map(item => `
+                <tr class="hover:bg-blue-50/50 transition">
+                    <td class="py-3 px-4 whitespace-nowrap text-slate-700 font-medium">${formatThaiShortDate(item.date)}</td>
+                    <td class="py-3 px-4 whitespace-nowrap font-bold text-royal-800">${item.workOrder}</td>
+                    <td class="py-3 px-4 whitespace-nowrap">${getDeptBadgeHTML(item.department)}</td>
+                    <td class="py-3 px-4 whitespace-nowrap font-semibold text-navy-900">
+                        <span class="px-2 py-0.5 rounded bg-slate-100 border border-slate-200">${item.machine}</span>
+                    </td>
+                    <td class="py-3 px-4 whitespace-nowrap text-slate-600">${item.operator}</td>
+                    <td class="py-3 px-4 font-medium text-red-700">${item.defect}</td>
+                    <td class="py-3 px-4 whitespace-nowrap text-right font-bold text-navy-900">
+                        ${Number(item.quantity).toLocaleString()} 
+                        <span class="text-xs font-semibold px-1.5 py-0.5 rounded ${item.unit === 'แผ่น' ? 'bg-blue-100 text-royal-800' : 'bg-amber-100 text-amber-800'}">${item.unit}</span>
+                    </td>
+                    <td class="py-3 px-4 whitespace-nowrap text-center">
+                        <button onclick="startEditRecord('${item.id}')" title="แก้ไขรายการนี้"
+                                class="px-2.5 py-1 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-900 text-xs font-semibold transition">
+                            <i class="fa-solid fa-pen"></i> แก้ไข
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderAllRecordsTable() {
+            const keyword = document.getElementById('tableSearchInput').value.trim().toLowerCase();
+            const deptFilter = document.getElementById('tableFilterDept').value;
+
+            const filtered = allRecords.filter(item => {
+                if (deptFilter !== 'ALL' && item.department !== deptFilter) return false;
+                if (keyword) {
+                    const hay = `${item.workOrder} ${item.department} ${item.machine} ${item.operator} ${item.defect} ${item.date}`.toLowerCase();
+                    if (!hay.includes(keyword)) return false;
+                }
+                return true;
+            });
+
+            const tbody = document.getElementById('allRecordsTableBody');
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" class="py-10 text-center text-slate-400">ไม่พบรายการข้อมูลที่ตรงกับการค้นหา</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map((item, index) => `
+                <tr class="hover:bg-amber-50/40 transition">
+                    <td class="py-3 px-4 text-slate-400 text-xs font-mono">${index + 1}</td>
+                    <td class="py-3 px-4 whitespace-nowrap font-medium text-slate-700">${formatThaiShortDate(item.date)}</td>
+                    <td class="py-3 px-4 whitespace-nowrap font-bold text-royal-800">${item.workOrder}</td>
+                    <td class="py-3 px-4 whitespace-nowrap">${getDeptBadgeHTML(item.department)}</td>
+                    <td class="py-3 px-4 whitespace-nowrap font-semibold text-navy-900">${item.machine}</td>
+                    <td class="py-3 px-4 whitespace-nowrap text-slate-600">${item.operator}</td>
+                    <td class="py-3 px-4 font-medium text-red-700">${item.defect}</td>
+                    <td class="py-3 px-4 whitespace-nowrap text-right font-bold text-navy-900">
+                        ${Number(item.quantity).toLocaleString()}
+                        <span class="ml-1 text-xs font-semibold px-2 py-0.5 rounded ${item.unit === 'แผ่น' ? 'bg-blue-100 text-royal-800' : 'bg-amber-100 text-amber-800'}">${item.unit}</span>
+                    </td>
+                    <td class="py-3 px-4 whitespace-nowrap text-center space-x-1">
+                        <button onclick="startEditRecord('${item.id}')"
+                                class="px-2.5 py-1 rounded-lg bg-gold-500/20 hover:bg-gold-500 text-navy-900 border border-gold-500/50 text-xs font-bold transition">
+                            <i class="fa-solid fa-pen-to-square"></i> แก้ไข
+                        </button>
+                        <button onclick="promptDeleteRecord('${item.id}')"
+                                class="px-2.5 py-1 rounded-lg bg-red-50 hover:bg-red-600 text-red-600 hover:text-white border border-red-200 text-xs font-bold transition">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // ส่งออกข้อมูลเป็นไฟล์ CSV (รองรับภาษาไทยใน Excel ด้วย UTF-8 BOM)
+        function exportToCSV() {
+            if (allRecords.length === 0) {
+                showToast('ไม่มีข้อมูลสำหรับส่งออก', 'warning');
+                return;
+            }
+            const headers = ['ID', 'วันที่แจ้ง', 'เลขที่ใบสั่งผลิต', 'แผนก', 'เครื่องจักร', 'หัวหน้าเครื่อง', 'ปัญหาที่พบ', 'จำนวนที่พบ', 'หน่วยนับ'];
+            const rows = allRecords.map(r => [
+                r.id, r.date, r.workOrder, r.department, r.machine, r.operator, r.defect, r.quantity, r.unit
+            ].map(val => `"${String(val).replace(/"/g, '""')}"`).join(','));
+
+            const csvContent = '\uFEFF' + [headers.join(','), ...rows].join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `WG6_Production_Defects_${getTodayISO()}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('ดาวน์โหลดไฟล์รายงาน CSV เรียบร้อยแล้ว', 'success');
+        }
+
+        // =========================================================================
+        // 8. การเชื่อมต่อ GOOGLE SHEET & APPS SCRIPT REAL-TIME SYNC
+        // =========================================================================
+        function loadSettings() {
+            const saved = localStorage.getItem(STORAGE_KEY_SETTINGS);
+            if (saved) {
+                try {
+                    sheetSettings = { ...sheetSettings, ...JSON.parse(saved) };
+                } catch (e) {}
+            }
+            document.getElementById('settingScriptUrl').value = sheetSettings.scriptUrl || '';
+            document.getElementById('settingSheetName').value = sheetSettings.sheetName || 'WG6_Defects';
+            document.getElementById('settingAutoSync').checked = sheetSettings.autoSync !== false;
+            updateConnectionIndicator();
+        }
+
+        function saveSheetSettings() {
+            sheetSettings.scriptUrl = document.getElementById('settingScriptUrl').value.trim();
+            sheetSettings.sheetName = document.getElementById('settingSheetName').value.trim() || 'WG6_Defects';
+            sheetSettings.autoSync = document.getElementById('settingAutoSync').checked;
+
+            localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(sheetSettings));
+            updateConnectionIndicator();
+            setupAutoSyncTimer();
+            showToast('บันทึกการตั้งค่า Google Sheet เรียบร้อยแล้ว', 'success');
+
+            if (sheetSettings.scriptUrl) {
+                fetchFromGoogleSheet(false);
+            }
+        }
+
+        function toggleAutoSync() {
+            sheetSettings.autoSync = document.getElementById('settingAutoSync').checked;
+            localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(sheetSettings));
+            setupAutoSyncTimer();
+            showToast(sheetSettings.autoSync ? 'เปิดใช้งาน Auto-Sync เรียลไทม์แล้ว' : 'ปิด Auto-Sync ชั่วคราว', 'info');
+        }
+
+        function setupAutoSyncTimer() {
+            if (autoSyncIntervalId) clearInterval(autoSyncIntervalId);
+            if (sheetSettings.autoSync && sheetSettings.scriptUrl) {
+                autoSyncIntervalId = setInterval(() => {
+                    fetchFromGoogleSheet(true);
+                }, 15000); // ดึงข้อมูลทุก 15 วินาที
+            }
+        }
+
+        function updateConnectionIndicator() {
+            const badge = document.getElementById('sheetConnectedBadge');
+            const box = document.getElementById('connectionStatusBox');
+            if (sheetSettings.scriptUrl) {
+                badge.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#34D399]';
+                box.className = 'p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800';
+                box.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600 mr-1"></i> เชื่อมต่อ Web App URL แล้ว (ชีต: <strong>${sheetSettings.sheetName}</strong>) ระบบพร้อมซิงค์ข้อมูลอัตโนมัติ`;
+            } else {
+                badge.className = 'w-2.5 h-2.5 rounded-full bg-amber-400';
+                box.className = 'p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-800';
+                box.innerHTML = `<i class="fa-solid fa-circle-info text-amber-600 mr-1"></i> ยังไม่ได้ระบุ Web App URL — ข้อมูลจะถูกบันทึกในเบราว์เซอร์นี้อย่างสมบูรณ์ สามารถใส่ URL เพื่อเชื่อมต่อ Google Sheet ได้ตลอดเวลา`;
+            }
+        }
+
+        function updateLastSyncBadge() {
+            const nowStr = new Date().toLocaleTimeString('th-TH', { hour12: false });
+            document.getElementById('lastSyncTimeText').textContent = `อัปเดตล่าสุด: ${nowStr} น.`;
+        }
+
+        function manualSyncNow() {
+            const icon = document.getElementById('syncIcon');
+            icon.classList.add('fa-spin');
+            updateLastSyncBadge();
+
+            if (sheetSettings.scriptUrl) {
+                fetchFromGoogleSheet(false).finally(() => {
+                    setTimeout(() => icon.classList.remove('fa-spin'), 600);
+                });
+            } else {
+                refreshAllViews();
+                setTimeout(() => {
+                    icon.classList.remove('fa-spin');
+                    showToast('อัปเดตข้อมูลบนแดชบอร์ดเรียลไทม์เรียบร้อย', 'success');
+                }, 500);
+            }
+        }
+
+        function testAndPullFromSheet() {
+            saveSheetSettings();
+            if (!sheetSettings.scriptUrl) {
+                showToast('กรุณากรอก Google Apps Script Web App URL ก่อนทดสอบ', 'warning');
+                return;
+            }
+            fetchFromGoogleSheet(false);
+        }
+
+        // ดึงข้อมูลจาก Google Sheet (GET)
+        async function fetchFromGoogleSheet(silent = false) {
+            if (!sheetSettings.scriptUrl) return;
+            try {
+                const url = `${sheetSettings.scriptUrl}?sheet=${encodeURIComponent(sheetSettings.sheetName)}&t=${Date.now()}`;
+                const response = await fetch(url);
+                const result = await response.json();
+
+                if (result && result.status === 'success' && Array.isArray(result.records)) {
+                    if (result.records.length > 0) {
+                        allRecords = result.records.reverse();
+                        saveRecordsToStorage();
+                        refreshAllViews();
+                    }
+                    updateLastSyncBadge();
+                    if (!silent) {
+                        showToast(`เชื่อมต่อสำเร็จ! ดึงข้อมูลจาก Google Sheet จำนวน ${result.records.length} รายการ`, 'success');
+                    }
+                }
+            } catch (err) {
+                if (!silent) {
+                    showToast('ไม่สามารถดึงข้อมูลจาก URL ได้ กรุณาตรวจสอบสิทธิ์การ Deploy เป็น "ทุกคน (Anyone)"', 'error');
+                }
+            }
+        }
+
+        // ส่งข้อมูลไปยัง Google Sheet (POST: create / update / delete)
+        async function sendToGoogleSheet(action, recordData) {
+            updateLastSyncBadge();
+            if (!sheetSettings.scriptUrl) return;
+
+            try {
+                const payload = {
+                    action: action,
+                    sheetName: sheetSettings.sheetName,
+                    record: recordData,
+                    id: recordData.id
+                };
+
+                await fetch(sheetSettings.scriptUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload)
+                });
+            } catch (err) {
+                console.error('Google Sheet Sync Error:', err);
+            }
+        }
+
+        // คัดลอกโค้ด Google Apps Script
+        function copyAppsScriptCode() {
+            const codeText = document.getElementById('appsScriptCodeBlock').innerText;
+            const textarea = document.createElement('textarea');
+            textarea.value = codeText;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+
+            const btnText = document.getElementById('copyCodeBtnText');
+            btnText.textContent = 'คัดลอกสำเร็จ!';
+            showToast('คัดลอกโค้ด Google Apps Script ลงคลิปบอร์ดแล้ว', 'success');
+            setTimeout(() => {
+                btnText.textContent = 'คัดลอกโค้ด';
+            }, 2500);
+        }
+
+        // =========================================================================
+        // 9. ระบบแจ้งเตือน TOAST NOTIFICATION
+        // =========================================================================
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+
+            const styles = {
+                success: { bg: 'bg-emerald-600 border-emerald-400', icon: 'fa-circle-check' },
+                warning: { bg: 'bg-amber-600 border-amber-400', icon: 'fa-triangle-exclamation' },
+                error:   { bg: 'bg-red-600 border-red-400', icon: 'fa-circle-xmark' },
+                info:    { bg: 'bg-navy-900 border-gold-500', icon: 'fa-circle-info' }
+            };
+            const cfg = styles[type] || styles.info;
+
+            const toast = document.createElement('div');
+            toast.className = `pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl text-white text-sm font-medium shadow-xl border ${cfg.bg} transition-all duration-300 transform translate-y-2 opacity-0`;
+            toast.innerHTML = `
+                <i class="fa-solid ${cfg.icon} text-base"></i>
+                <span>${message}</span>
+            `;
+
+            container.appendChild(toast);
+
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            });
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-2', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3200);
+        }
+    </script>
+</body>
+</html>
